@@ -1,4 +1,4 @@
-package ru.javaprojects.mylunch.user.web;
+package ru.javaprojects.mylunch.restaurant.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -6,16 +6,15 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
-import ru.javaprojects.mylunch.app.AuthUtil;
 import ru.javaprojects.mylunch.common.HasIdAndEmail;
-import ru.javaprojects.mylunch.user.repository.UserRepository;
+import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
 
 @Component
 @AllArgsConstructor
-public class UniqueMailValidator implements org.springframework.validation.Validator {
-    public static final String EXCEPTION_DUPLICATE_EMAIL = "User with this email already exists";
+public class UniqueRestaurantMailValidator implements org.springframework.validation.Validator {
+    public static final String EXCEPTION_DUPLICATE_EMAIL = "Restaurant with this email already exists";
 
-    private final UserRepository repository;
+    private final RestaurantRepository repository;
     private final HttpServletRequest request;
 
     @Override
@@ -25,20 +24,20 @@ public class UniqueMailValidator implements org.springframework.validation.Valid
 
     @Override
     public void validate(@NonNull Object target, @NonNull Errors errors) {
-        HasIdAndEmail user = ((HasIdAndEmail) target);
-        if (StringUtils.hasText(user.getEmail())) {
-            repository.findByEmailIgnoreCase(user.getEmail())
-                    .ifPresent(dbUser -> {
+        HasIdAndEmail restaurant = ((HasIdAndEmail) target);
+        if (StringUtils.hasText(restaurant.getEmail())) {
+            repository.findByEmailIgnoreCase(restaurant.getEmail())
+                    .ifPresent(dbRestaurant -> {
                         if (request.getMethod().equals("PUT")) {  // UPDATE
-                            int dbId = dbUser.id();
+                            int dbId = dbRestaurant.id();
 
                             // it is ok, if update ourselves
-                            if (user.getId() != null && dbId == user.id()) return;
+                            if (restaurant.getId() != null && dbId == restaurant.id()) return;
 
-                            // Workaround for update with user.id=null in request body
+                            // Workaround for update with restaurant.id=null in request body
                             // ValidationUtil.assureIdConsistent called after this validation
                             String requestURI = request.getRequestURI();
-                            if (requestURI.endsWith("/" + dbId) || (dbId == AuthUtil.get().id() && requestURI.contains("/profile")))
+                            if (requestURI.endsWith("/" + dbId))
                                 return;
                         }
                         errors.rejectValue("email", "", EXCEPTION_DUPLICATE_EMAIL);

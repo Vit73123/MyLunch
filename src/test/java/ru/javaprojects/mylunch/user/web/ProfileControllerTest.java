@@ -106,6 +106,6 @@ class ProfileControllerTest extends AbstractControllerTest {
                 .content(JsonUtil.writeValue(updatedTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(content().string(containsString(UniqueMailValidator.EXCEPTION_DUPLICATE_EMAIL)));
+                .andExpect(content().string(containsString(UniqueUserMailValidator.EXCEPTION_DUPLICATE_EMAIL)));
     }
 }

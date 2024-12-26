@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javaprojects.mylunch.user.UserTestData.*;
 import static ru.javaprojects.mylunch.user.web.AdminUserController.REST_URL;
-import static ru.javaprojects.mylunch.user.web.UniqueMailValidator.EXCEPTION_DUPLICATE_EMAIL;
+import static ru.javaprojects.mylunch.user.web.UniqueUserMailValidator.EXCEPTION_DUPLICATE_EMAIL;
 
 class AdminUserControllerTest extends AbstractControllerTest {
 
