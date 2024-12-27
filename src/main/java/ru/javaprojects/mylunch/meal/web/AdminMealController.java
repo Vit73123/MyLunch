@@ -37,14 +37,14 @@ public class AdminMealController {
 
     @GetMapping("/{id}")
     public MealTo get(@PathVariable int id, @PathVariable int restaurantId) {
-        log.info("get meal id={} of restaurant id={}", id, restaurantId);
+        log.info("get with id={} of restaurant id={}", id, restaurantId);
         return createTo(mealRepository.getExistedByRestaurantId(id, restaurantId));
     }
 
     @GetMapping
     @Transactional
     public List<MealTo> getByRestaurant(@PathVariable int restaurantId) {
-        log.info("get meals of restaurant id={}", restaurantId);
+        log.info("getByRestaurant id={}", restaurantId);
         restaurantRepository.checkExists(restaurantId);
         return createTos(mealRepository.getByRestaurant(restaurantId));
     }
@@ -77,8 +77,7 @@ public class AdminMealController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id, @PathVariable int restaurantId) {
-        log.info("delete meal with id={} of restaurant id={}", id, restaurantId);
+        log.info("delete with id={} of restaurant id={}", id, restaurantId);
         mealRepository.deleteExistedByRestaurantId(id, restaurantId);
     }
-
 }

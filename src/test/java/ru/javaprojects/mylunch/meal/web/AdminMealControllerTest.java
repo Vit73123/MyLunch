@@ -167,7 +167,7 @@ public class AdminMealControllerTest extends AbstractControllerTest {
                 .toUri();
 
         Meal newMeal = getNew();
-        ResultActions action = perform(MockMvcRequestBuilders.post(uri)
+        perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(MealsUtil.createTo(newMeal))))
                 .andDo(print())

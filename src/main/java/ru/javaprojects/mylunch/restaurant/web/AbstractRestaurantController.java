@@ -24,12 +24,12 @@ public abstract class AbstractRestaurantController {
     }
 
     public Restaurant get(int id) {
-        log.info("get restaurant {}", id);
+        log.info("get with id={}", id);
         return repository.getExisted(id);
     }
 
     public void delete(int id) {
-        log.info("delete {}", id);
+        log.info("delete with id={}", id);
         repository.deleteExisted(id);
     }
 }
