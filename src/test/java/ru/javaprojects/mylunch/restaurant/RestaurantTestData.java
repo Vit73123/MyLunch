@@ -63,8 +63,4 @@ public class RestaurantTestData {
     public static Restaurant getUpdated() {
         return new Restaurant(RESTAURANT1_ID, "Изменённый ресторан", "updated_restaurant@yandex.ru");
     }
-
-    public static Restaurant getInvalidUpdated() {
-        return new Restaurant(RESTAURANT1_ID, "Изменённый ресторан", "updated_restaurant@yandex.ru");
-    }
 }

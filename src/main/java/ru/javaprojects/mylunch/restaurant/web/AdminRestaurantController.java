@@ -5,6 +5,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
@@ -43,7 +44,7 @@ public class AdminRestaurantController extends AbstractRestaurantController {
     public ResponseEntity<Restaurant> createWithLocation(@Valid @RequestBody Restaurant restaurant) {
         log.info("create {}", restaurant);
         checkNew(restaurant);
-        Restaurant created = repository.save(restaurant);
+        Restaurant created = repository.checkAndSave(restaurant);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL + "/{id}")
                 .buildAndExpand(created.getId())
@@ -56,7 +57,7 @@ public class AdminRestaurantController extends AbstractRestaurantController {
     public void update(@Valid @RequestBody Restaurant restaurant, @PathVariable int id) {
         log.info("update {} with id={}", restaurant, id);
         assureIdConsistent(restaurant, id);
-        repository.save(restaurant);
+        repository.checkAndSave(restaurant);
     }
 
     @DeleteMapping("/{id}")

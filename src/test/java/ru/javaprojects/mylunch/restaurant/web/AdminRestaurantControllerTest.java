@@ -95,7 +95,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
         int newId = created.id();
         newRestaurant.setId(newId);
         RESTAURANT_MATCHER.assertMatch(created, newRestaurant);
-        RESTAURANT_MATCHER.assertMatch(repository.getExisted(newId), created);
+        RESTAURANT_MATCHER.assertMatch(repository.getExisted(newId), newRestaurant);
     }
 
     @Test
@@ -122,6 +122,18 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNoContent());
 
         RESTAURANT_MATCHER.assertMatch(repository.getExisted(RESTAURANT1_ID), getUpdated());
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void updateNotFound() throws Exception {
+        Restaurant notFound = new Restaurant(NOT_FOUND, "Несуществующий ресторан", "not_found_restaurant@yandex.ru");
+
+        perform(MockMvcRequestBuilders.put(REST_URL_SLASH + NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(notFound)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -173,5 +185,13 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNoContent());
 
         assertFalse(repository.findById(RESTAURANT1_ID).isPresent());
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void deleteNotFound() throws Exception {
+        perform(MockMvcRequestBuilders.delete(REST_URL_SLASH + NOT_FOUND))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

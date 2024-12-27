@@ -9,11 +9,11 @@ import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class AbstractRestaurantController {
+public abstract class AbstractRestaurantController {
     protected final Logger log = getLogger(getClass());
 
     @Autowired
-    RestaurantRepository repository;
+    protected RestaurantRepository repository;
 
     @Autowired
     private UniqueRestaurantMailValidator emailValidator;

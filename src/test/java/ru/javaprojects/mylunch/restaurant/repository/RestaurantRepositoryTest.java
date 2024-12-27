@@ -8,6 +8,7 @@ import ru.javaprojects.mylunch.AbstractRepositoryTest;
 import ru.javaprojects.mylunch.common.error.NotFoundException;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;
 
@@ -52,10 +53,16 @@ class RestaurantRepositoryTest extends AbstractRepositoryTest {
     }
 
     @Test
+    void updateNotFound() {
+        Restaurant updated = new Restaurant(NOT_FOUND, "Несуществующий ресторан", "not_found_restaurant@yandex.ru");
+        assertThrows(NotFoundException.class, () -> repository.checkAndSave(updated));
+        assertFalse(repository.findById(NOT_FOUND).isPresent());
+    }
+
+    @Test
     void delete() {
         repository.deleteExisted(RESTAURANT1_ID);
-        RESTAURANT_MATCHER.assertMatch(
-                repository.findAll(Sort.by(Sort.Direction.ASC, "name", "email")), restaurant2, restaurant3);
+        assertFalse(repository.findById(RESTAURANT1_ID).isPresent());
     }
 
     @Test

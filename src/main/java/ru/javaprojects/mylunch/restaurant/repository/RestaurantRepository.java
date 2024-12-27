@@ -18,4 +18,18 @@ public interface RestaurantRepository extends BaseRepository<Restaurant> {
         return findByEmailIgnoreCase(email).orElseThrow(
                 () -> new NotFoundException("Restaurant with email=" + email + " not found"));
     }
+
+    @Transactional
+    default Restaurant checkAndSave(Restaurant restaurant) {
+        if (!restaurant.isNew()) {
+            checkExists(restaurant.id());
+        }
+        return save(restaurant);
+    }
+
+    default void checkExists(int id) {
+        if (!existsById(id)) {
+            throw new NotFoundException("Restaurant with id=" + id + " not found");
+        }
+    }
 }
