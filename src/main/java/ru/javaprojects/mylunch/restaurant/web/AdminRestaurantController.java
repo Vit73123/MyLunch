@@ -27,10 +27,10 @@ public class AdminRestaurantController extends AbstractRestaurantController {
 
     static final String REST_URL = "/api/admin/restaurants";
 
-    @Override
     @GetMapping("/{id}")
     public Restaurant get(@PathVariable int id) {
-        return super.get(id);
+        log.info("get with id={}", id);
+        return repository.getExisted(id);
     }
 
     @GetMapping("/by-email")
@@ -78,6 +78,7 @@ public class AdminRestaurantController extends AbstractRestaurantController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {
-        super.delete(id);
+        log.info("delete with id={}", id);
+        repository.deleteExisted(id);
     }
 }
