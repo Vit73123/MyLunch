@@ -9,8 +9,6 @@ import ru.javaprojects.mylunch.common.error.NotFoundException;
 import ru.javaprojects.mylunch.menu.MenuTestData;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;

@@ -29,20 +29,7 @@ public class MealTestData {
     public static final Meal meal7 = new Meal(7, "Обед А-3", 230, RESTAURANT2_ID);
     public static final Meal meal8 = new Meal(8, "Обед Б-3", 130, RESTAURANT1_ID);
 
-    static {
-//        meal1.setRestaurant(restaurant3);
-//        meal2.setRestaurant(restaurant1);
-//        meal3.setRestaurant(restaurant2);
-//        meal4.setRestaurant(restaurant2);
-//        meal5.setRestaurant(restaurant1);
-//        meal6.setRestaurant(restaurant3);
-//        meal7.setRestaurant(restaurant2);
-//        meal8.setRestaurant(restaurant1);
-    }
-
     public static final List<Meal> restaurant1meals = List.of(meal2, meal5, meal8);
-//    public static final List<Meal> restaurant2meals = List.of(meal4, meal3, meal7);
-//    public static final List<Meal> restaurant3meals = List.of(meal1, meal6);
 
     public static Meal getNew() {
         return new Meal(null, "Созданный обед", 100, 0);

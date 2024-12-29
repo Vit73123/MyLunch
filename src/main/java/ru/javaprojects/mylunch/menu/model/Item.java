@@ -7,8 +7,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.Range;
 import ru.javaprojects.mylunch.common.View;
 import ru.javaprojects.mylunch.common.model.BaseEntity;
@@ -25,7 +23,6 @@ public class Item extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id", nullable = false, insertable = false, updatable = false)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
     @OrderBy("issuedDate DESC")
     @JsonBackReference(value = "menu-items")
     @NotNull(groups = View.Persist.class)
@@ -37,7 +34,6 @@ public class Item extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "meal_id", nullable = false, insertable = false, updatable = false)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
     @OrderBy("description ASC")
     @JsonBackReference(value = "meal-items")
     @NotNull(groups = View.Persist.class)
