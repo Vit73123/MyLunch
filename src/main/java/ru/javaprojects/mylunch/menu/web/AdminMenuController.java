@@ -79,9 +79,9 @@ public class AdminMenuController extends AbstractMenuController {
         log.info("create on date {} of restaurant id={}", date, restaurantId);
         restaurantRepository.checkExists(restaurantId);
         Menu newMenu = menuRepository.findByDateAndRestaurantId(date, restaurantId)
-                .orElse(new Menu(null, date != null ? date : LocalDate.now(), 0));
+                .orElse(new Menu(null, date != null ? date : LocalDate.now(), restaurantId));
         checkNew(newMenu);
-        Menu created = menuRepository.prepareAndSave(newMenu, restaurantId);
+        Menu created = menuRepository.save(newMenu);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL)
                 .buildAndExpand(restaurantId)

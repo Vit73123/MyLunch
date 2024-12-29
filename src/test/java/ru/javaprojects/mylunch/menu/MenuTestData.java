@@ -134,7 +134,7 @@ public class MenuTestData {
 //    public static final List<Item> todayMenus = List.of(item11, item12, item10);    // DAY_3 RESTAURANT_2
 
     public static Menu getNewMenuOnDate(LocalDate date) {
-        return new Menu(null, date, 0);
+        return new Menu(null, date, RESTAURANT3_ID);
     }
 
     public static Item getNewItem() {

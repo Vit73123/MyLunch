@@ -46,12 +46,6 @@ public interface MenuRepository extends BaseRepository<Menu> {
     }
 
     @Transactional
-    default Menu prepareAndSave(Menu menu, int restaurantId) {
-        menu.setRestaurantId(restaurantId);
-        return save(menu);
-    }
-
-    @Transactional
     @Modifying
     @Query("DELETE FROM Menu m WHERE m.id=:id AND m.restaurant.id=:restaurantId")
     int deleteByIdAndRestaurantId(int id, int restaurantId);

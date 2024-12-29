@@ -47,25 +47,18 @@ class MenuRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void save() {
-        Menu created = repository.prepareAndSave(getNewMenuOnDate(TODAY), RESTAURANT3_ID);
+        Menu created = repository.save(getNewMenuOnDate(TODAY));
         int newId = created.id();
         Menu newItem = getNewMenuOnDate(TODAY);
         newItem.setId(newId);
-        newItem.setRestaurantId(created.getRestaurantId());
         MENU_MATCHER.assertMatch(created, newItem);
         MENU_MATCHER.assertMatch(repository.getExisted(newId, RESTAURANT3_ID), newItem);
     }
 
     @Test
-    void saveNotOwn() {
-        assertThrows(DataIntegrityViolationException.class, () ->
-                repository.prepareAndSave(new Menu(null, TODAY, 0), RestaurantTestData.NOT_FOUND));
-    }
-
-    @Test
     void duplicateDateRestaurantSave() {
         assertThrows(DataIntegrityViolationException.class, () ->
-                repository.prepareAndSave(new Menu(null, TODAY, 0), RESTAURANT1_ID));
+                repository.save(new Menu(null, TODAY, RESTAURANT2_ID)));
     }
 
     @Test
