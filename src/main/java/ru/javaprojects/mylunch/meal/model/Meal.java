@@ -18,7 +18,6 @@ import ru.javaprojects.mylunch.common.model.BaseEntity;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -52,7 +51,8 @@ public class Meal extends BaseEntity implements HasId {
 
     @ManyToMany(mappedBy = "items")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Menu> menus;
+    @OrderBy("issuedDate desc")
+    private Set<Menu> menus;
 
     public Meal(Meal m) {
         this(m.id, m.description, m.price, m.restaurantId);
