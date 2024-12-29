@@ -1,11 +1,14 @@
 package ru.javaprojects.mylunch.restaurant.repository;
 
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javaprojects.mylunch.common.BaseRepository;
 import ru.javaprojects.mylunch.common.error.NotFoundException;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
@@ -18,6 +21,9 @@ public interface RestaurantRepository extends BaseRepository<Restaurant> {
         return findByEmailIgnoreCase(email).orElseThrow(
                 () -> new NotFoundException("Restaurant with email=" + email + " not found"));
     }
+
+    @Query("SELECT r FROM Restaurant r JOIN r.menus m WHERE m.issuedDate=:date ORDER BY r.name ASC")
+    List<Restaurant> getOnDate(@Param("date") LocalDate date);
 
     @Transactional
     default Restaurant checkAndSave(Restaurant restaurant) {

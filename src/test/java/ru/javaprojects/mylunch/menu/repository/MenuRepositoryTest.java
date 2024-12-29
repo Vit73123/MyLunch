@@ -8,7 +8,10 @@ import ru.javaprojects.mylunch.common.error.NotFoundException;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.restaurant.RestaurantTestData;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static ru.javaprojects.mylunch.meal.MealTestData.MEAL_MATCHER;
 import static ru.javaprojects.mylunch.menu.MenuTestData.*;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.NOT_FOUND;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;
@@ -20,37 +23,37 @@ class MenuRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void get() {
-        Menu actual = repository.getExistedByRestaurantId(MENU7_ID, RESTAURANT1_ID);
+        Menu actual = repository.getExisted(MENU7_ID, RESTAURANT1_ID);
         MENU_MATCHER.assertMatch(actual, menu7);
     }
 
     @Test
     void getNotFound() {
         assertThrows(NotFoundException.class, () ->
-                repository.getExistedByRestaurantId(NOT_FOUND, RESTAURANT1_ID));
+                repository.getExisted(NOT_FOUND, RESTAURANT1_ID));
     }
 
     @Test
     void getNotOwn() {
         assertThrows(NotFoundException.class, () ->
-                repository.getExistedByRestaurantId(MENU7_ID, RESTAURANT2_ID));
+                repository.getExisted(MENU7_ID, RESTAURANT2_ID));
     }
 
     @Test
     void getOwnNotFoundRestaurant() {
         assertThrows(NotFoundException.class, () ->
-                repository.getExistedByRestaurantId(MENU7_ID, RestaurantTestData.NOT_FOUND));
+                repository.getExisted(MENU7_ID, RestaurantTestData.NOT_FOUND));
     }
 
     @Test
     void save() {
-        Menu created = repository.prepareAndSave(getNewOnDate(TODAY), RESTAURANT3_ID);
+        Menu created = repository.prepareAndSave(getNewMenuOnDate(TODAY), RESTAURANT3_ID);
         int newId = created.id();
-        Menu newItem = getNewOnDate(TODAY);
+        Menu newItem = getNewMenuOnDate(TODAY);
         newItem.setId(newId);
         newItem.setRestaurantId(created.getRestaurantId());
         MENU_MATCHER.assertMatch(created, newItem);
-        MENU_MATCHER.assertMatch(repository.getExistedByRestaurantId(newId, RESTAURANT3_ID), newItem);
+        MENU_MATCHER.assertMatch(repository.getExisted(newId, RESTAURANT3_ID), newItem);
     }
 
     @Test
@@ -67,20 +70,20 @@ class MenuRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void delete() {
-        repository.deleteExistedByRestaurantId(MENU7_ID, RESTAURANT1_ID);
+        repository.deleteExisted(MENU7_ID, RESTAURANT1_ID);
         assertFalse(repository.findById(MENU7_ID).isPresent());
     }
 
     @Test
     void deleteNotFound() {
         assertThrows(NotFoundException.class, () ->
-                repository.deleteExistedByRestaurantId(NOT_FOUND, RESTAURANT1_ID));
+                repository.deleteExisted(NOT_FOUND, RESTAURANT1_ID));
     }
 
     @Test
     void deleteNotOwn() {
         assertThrows(NotFoundException.class, () ->
-                repository.deleteExistedByRestaurantId(MENU1_ID, RESTAURANT2_ID));
+                repository.deleteExisted(MENU1_ID, RESTAURANT2_ID));
     }
 
     @Test
@@ -103,5 +106,18 @@ class MenuRepositoryTest extends AbstractRepositoryTest {
     void getByNotFoundDateOrRestaurant() {
         assertThrows(NotFoundException.class, () -> repository.getExistedByDate(NEW_DAY, RESTAURANT1_ID));
         assertThrows(NotFoundException.class, () -> repository.getExistedByDate(TODAY, RESTAURANT3_ID));
+    }
+
+    @Test
+    void getWithItems() {
+        Menu actual = repository.getExistedWithMeals(MENU8_ID, RESTAURANT2_ID);
+        MENU_MATCHER.assertMatch(actual, menu8);
+        MEAL_MATCHER.assertMatch(actual.getItems(), menu8Meals);
+    }
+
+    @Test
+    void getByDate() {
+        List<Menu> menus = repository.getByDate(DAY_1);
+        System.out.println(menus);
     }
 }

@@ -10,17 +10,8 @@ import java.util.List;
 @UtilityClass
 public class MenusUtil {
 
-    public static Menu createNewFromTo(MenuTo menuTo) {
-        return new Menu(null, menuTo.getIssuedDate(), 0);
-    }
-
-    public static Menu updateFromTo(Menu menu, MenuTo menuTo) {
-        menu.setIssuedDate(menuTo.getIssuedDate());
-        return menu;
-    }
-
     public static MenuTo createTo(Menu menu) {
-        return new MenuTo(menu.getId(), menu.getIssuedDate());
+        return new MenuTo(menu.getId(), menu.getIssuedDate(), menu.getRestaurantId(), menu.getItems());
     }
 
     public static List<MenuTo> createTos(Collection<Menu> menus) {

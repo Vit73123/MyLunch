@@ -15,9 +15,11 @@ import org.hibernate.validator.constraints.Range;
 import ru.javaprojects.mylunch.common.HasId;
 import ru.javaprojects.mylunch.common.View;
 import ru.javaprojects.mylunch.common.model.BaseEntity;
+import ru.javaprojects.mylunch.meal.model.Meal;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
@@ -36,13 +38,24 @@ public class Menu extends BaseEntity implements HasId {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false, insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonBackReference(value = "menu-items")
+    @JsonBackReference(value = "restaurant-menus")
     @NotNull(groups = View.Persist.class)
     private Restaurant restaurant;
 
     @Column(name = "restaurant_id", nullable = false)
     @Range(min = 1)
     private int restaurantId;
+
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "menu_item",
+            joinColumns = @JoinColumn(name = "menu_id"),
+            inverseJoinColumns = @JoinColumn(name = "meal_id")
+    )
+    @OrderBy("description")
+    @JsonBackReference(value = "menu-items")
+    private Set<Meal> items;
 
     public Menu(Menu m) {
         this(m.id, m.issuedDate, m.restaurantId);
@@ -56,7 +69,7 @@ public class Menu extends BaseEntity implements HasId {
 
     @Override
     public String toString() {
-        return "Meal{" +
+        return "Menu{" +
                 "id=" + id +
                 ", date='" + issuedDate + '\'' +
                 ", restaurantId=" + restaurantId +

@@ -38,7 +38,7 @@ public class Meal extends BaseEntity implements HasId {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false, insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonBackReference(value = "menu-items")
+//    @JsonBackReference(value = "restaurant-meals")
     @NotNull(groups = View.Persist.class)
     private Restaurant restaurant;
 

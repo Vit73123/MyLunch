@@ -18,7 +18,7 @@ public interface MealRepository extends BaseRepository<Meal> {
 
     default Meal getExistedByRestaurantId(int id, int restaurantId) {
         return this.findByIdAndRestaurantId(id, restaurantId).orElseThrow(
-                () -> new NotFoundException("Meal with id=" + id + "and restaurant_id=" + restaurantId + "not found"));
+                () -> new NotFoundException("Meal with id=" + id + " restaurant_id=" + restaurantId + " not found"));
     }
 
     @Query("SELECT m FROM Meal m WHERE m.restaurantId=:restaurantId ORDER BY m.description ASC")
@@ -28,7 +28,7 @@ public interface MealRepository extends BaseRepository<Meal> {
     default Meal prepareAndSave(Meal meal, int restaurantId) {
         if (!meal.isNew()) {
             findByIdAndRestaurantId(meal.id(), restaurantId).orElseThrow(
-                    () -> new NotFoundException("Meal with id=" + meal.id() + "and restaurant_id=" + restaurantId + "not found"));
+                    () -> new NotFoundException("Meal with id=" + meal.id() + " restaurant_id=" + restaurantId + " not found"));
         }
         meal.setRestaurantId(restaurantId);
         return save(meal);
@@ -43,7 +43,12 @@ public interface MealRepository extends BaseRepository<Meal> {
     @SuppressWarnings("all") // transaction invoked
     default void deleteExistedByRestaurantId(int id, int restaurantId) {
         if (deleteByIdAndRestaurantId(id, restaurantId) == 0) {
-            throw new NotFoundException("Meal with id=" + id + "and restaurant_id=" + restaurantId + "not found");
+            throw new NotFoundException("Meal with id=" + id + " restaurant_id=" + restaurantId + " not found");
         }
+    }
+
+    default void checkExistsByRestaurant(int id, int restaurantId) {
+        this.findByIdAndRestaurantId(id, restaurantId).orElseThrow(
+                () -> new NotFoundException("Meal with id=" + id + " of restaurant id=" + restaurantId + " not found"));
     }
 }

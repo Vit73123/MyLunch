@@ -8,19 +8,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.javaprojects.mylunch.menu.to.MenuTo;
 
+import java.time.LocalDate;
+
 import static org.slf4j.LoggerFactory.getLogger;
 
 @RestController
 @RequestMapping(value = MenuController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class MenuController extends AbstractMenuController {
-
     protected final Logger log = getLogger(getClass());
 
-    static final String REST_URL = "/api/restaurants/{restaurantId}/menus";
+    static final String REST_URL = "/api/restaurants/{restaurantId}/menu";
 
-    @Override
-    @GetMapping("/{id}")
-    public MenuTo get(@PathVariable int id, @PathVariable int restaurantId) {
-        return super.get(id, restaurantId);
+    @GetMapping
+    public MenuTo getOnToday(@PathVariable int restaurantId) {
+        return super.getOnDate(LocalDate.now(), restaurantId);
     }
 }

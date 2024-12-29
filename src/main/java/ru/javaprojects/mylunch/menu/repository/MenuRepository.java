@@ -17,7 +17,7 @@ public interface MenuRepository extends BaseRepository<Menu> {
     @Query("SELECT m FROM Menu m WHERE m.id=:id AND m.restaurantId=:restaurantId")
     Optional<Menu> findByIdAndRestaurantId(int id, int restaurantId);
 
-    default Menu getExistedByRestaurantId(int id, int restaurantId) {
+    default Menu getExisted(int id, int restaurantId) {
         return this.findByIdAndRestaurantId(id, restaurantId).orElseThrow(
                 () -> new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + " not found"));
     }
@@ -33,6 +33,18 @@ public interface MenuRepository extends BaseRepository<Menu> {
     @Query("SELECT m FROM Menu m WHERE m.restaurantId=:restaurantId ORDER BY m.issuedDate DESC")
     List<Menu> getByRestaurant(int restaurantId);
 
+    @Query("SELECT m FROM Menu m WHERE m.issuedDate=:date ORDER BY m.restaurant.name ASC")
+    List<Menu> getByDate(LocalDate date);
+
+    @Query("SELECT m FROM Menu m LEFT JOIN FETCH m.items i " +
+            "WHERE m.id=:id AND m.restaurantId=:restaurantId AND i.restaurantId=:restaurantId ORDER BY i.description ASC")
+    Optional<Menu> findWithMealsByRestaurantId(int id, int restaurantId);
+
+    default Menu getExistedWithMeals(int id, int restaurantId) {
+        return this.findWithMealsByRestaurantId(id, restaurantId).orElseThrow(
+                () -> new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + " not found"));
+    }
+
     @Transactional
     default Menu prepareAndSave(Menu menu, int restaurantId) {
         menu.setRestaurantId(restaurantId);
@@ -46,9 +58,14 @@ public interface MenuRepository extends BaseRepository<Menu> {
 
     //  https://stackoverflow.com/a/60695301/548473 (existed delete code 204, not existed: 404)
     @SuppressWarnings("all") // transaction invoked
-    default void deleteExistedByRestaurantId(int id, int restaurantId) {
+    default void deleteExisted(int id, int restaurantId) {
         if (deleteByIdAndRestaurantId(id, restaurantId) == 0) {
-            throw new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + "not found");
+            throw new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + " not found");
         }
+    }
+
+    default void checkExistsByRestaurant(int id, int restaurantId) {
+        this.findByIdAndRestaurantId(id, restaurantId).orElseThrow(
+                () -> new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + " not found"));
     }
 }

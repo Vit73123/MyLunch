@@ -6,9 +6,13 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.javaprojects.mylunch.AbstractControllerTest;
+import ru.javaprojects.mylunch.restaurant.RestaurantsUtil;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
+
+import java.net.URI;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javaprojects.mylunch.common.util.JsonUtil.writeValue;
+import static ru.javaprojects.mylunch.menu.MenuTestData.DAY_1;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;
 import static ru.javaprojects.mylunch.restaurant.web.AdminRestaurantController.REST_URL;
 import static ru.javaprojects.mylunch.restaurant.web.UniqueRestaurantMailValidator.EXCEPTION_DUPLICATE_EMAIL;
@@ -64,6 +69,22 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(RESTAURANT_MATCHER.contentJson(restaurants));
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void getOnDate() throws Exception {
+        URI uri = UriComponentsBuilder
+                .fromUriString(REST_URL_SLASH + "on-date")
+                .queryParam("date", "{date}")
+                .buildAndExpand(DAY_1)
+                .toUri();
+
+        perform(MockMvcRequestBuilders.get(uri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RESTAURANT_TO_MATCHER.contentJson(RestaurantsUtil.createTos(day1Restaurants)));
     }
 
     @Test

@@ -6,7 +6,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import ru.javaprojects.mylunch.AbstractRepositoryTest;
 import ru.javaprojects.mylunch.common.error.NotFoundException;
+import ru.javaprojects.mylunch.menu.MenuTestData;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -82,8 +85,8 @@ class RestaurantRepositoryTest extends AbstractRepositoryTest {
         RESTAURANT_MATCHER.assertMatch(repository.getExistedByEmail(RESTAURANT1_EMAIL), restaurant1);
     }
 
-    //    @Test
-//    void getWithMenusOnDate() {
-//        RESTAURANT_WITH_MENU_MATCHER.assertMatch(repository.getWithMenusOnDate(MenuTestData.TODAY), todayRestaurants);
-//    }
+    @Test
+    void getOnDate() {
+        RESTAURANT_MATCHER.assertMatch(repository.getOnDate(MenuTestData.DAY_1), day1Restaurants);
+    }
 }
