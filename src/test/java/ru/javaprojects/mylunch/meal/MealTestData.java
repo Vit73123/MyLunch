@@ -9,7 +9,7 @@ import java.util.List;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;
 
 public class MealTestData {
-    public static final MatcherFactory.Matcher<Meal> MEAL_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Meal.class, "restaurant");
+    public static final MatcherFactory.Matcher<Meal> MEAL_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Meal.class, "restaurant", "menus");
     public static final MatcherFactory.Matcher<MealTo> MEAL_TO_MATCHER = MatcherFactory.usingEqualsComparator(MealTo.class);
 
     public static final int MEAL1_ID = 1;

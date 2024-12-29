@@ -54,6 +54,7 @@ public class Menu extends BaseEntity implements HasId {
             inverseJoinColumns = @JoinColumn(name = "meal_id")
     )
     @OrderBy("description")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference(value = "menu-items")
     private Set<Meal> items;
 

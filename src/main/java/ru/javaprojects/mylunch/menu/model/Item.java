@@ -25,7 +25,7 @@ public class Item extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id", nullable = false, insertable = false, updatable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+//    @OnDelete(action = OnDeleteAction.CASCADE)
     @OrderBy("issuedDate DESC")
     @JsonBackReference(value = "menu-items")
     @NotNull(groups = View.Persist.class)
@@ -37,9 +37,9 @@ public class Item extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "meal_id", nullable = false, insertable = false, updatable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+//    @OnDelete(action = OnDeleteAction.CASCADE)
     @OrderBy("description ASC")
-//    @JsonBackReference(value = "meal-items")
+    @JsonBackReference(value = "meal-items")
     @NotNull(groups = View.Persist.class)
     private Meal meal;
 

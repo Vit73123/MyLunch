@@ -7,7 +7,7 @@ import ru.javaprojects.mylunch.restaurant.to.RestaurantTo;
 import java.util.List;
 
 public class RestaurantTestData {
-    public static final MatcherFactory.Matcher<Restaurant> RESTAURANT_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Restaurant.class, "menus");
+    public static final MatcherFactory.Matcher<Restaurant> RESTAURANT_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Restaurant.class, "menus", "meals");
     //    public static final MatcherFactory.Matcher<Restaurant> RESTAURANT_WITH_MENU_MATCHER =
 //            MatcherFactory.usingAssertions(Restaurant.class,
 //                    (a, e) -> assertThat(a).usingRecursiveComparison().ignoringFields("menus.restaurant", "menus.items").isEqualTo(e),

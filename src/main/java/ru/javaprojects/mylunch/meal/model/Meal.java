@@ -15,7 +15,11 @@ import org.hibernate.validator.constraints.Range;
 import ru.javaprojects.mylunch.common.HasId;
 import ru.javaprojects.mylunch.common.View;
 import ru.javaprojects.mylunch.common.model.BaseEntity;
+import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
+
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "meal",
@@ -38,13 +42,17 @@ public class Meal extends BaseEntity implements HasId {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false, insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-//    @JsonBackReference(value = "restaurant-meals")
+    @JsonBackReference(value = "restaurant-meals")
     @NotNull(groups = View.Persist.class)
     private Restaurant restaurant;
 
     @Column(name = "restaurant_id", nullable = false)
     @Range(min = 1)
     private int restaurantId;
+
+    @ManyToMany(mappedBy = "items")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Menu> menus;
 
     public Meal(Meal m) {
         this(m.id, m.description, m.price, m.restaurantId);
