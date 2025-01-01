@@ -1,5 +1,6 @@
 package ru.javaprojects.mylunch.user.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -10,10 +11,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.lang.NonNull;
 import ru.javaprojects.mylunch.common.HasIdAndEmail;
 import ru.javaprojects.mylunch.common.model.NamedEntity;
 import ru.javaprojects.mylunch.common.validation.NoHtml;
+import ru.javaprojects.mylunch.vote.model.Vote;
 
 import java.util.*;
 
@@ -54,6 +58,12 @@ public class User extends NamedEntity implements HasIdAndEmail {
     @Column(name = "role")
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<Role> roles = EnumSet.noneOf(Role.class);
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OrderBy("votedDate DESC")
+    @JsonManagedReference(value = "user-votes")
+    private List<Vote> votes;
 
     public User(User u) {
         this(u.id, u.name, u.email, u.password, u.enabled, u.registered, u.roles);

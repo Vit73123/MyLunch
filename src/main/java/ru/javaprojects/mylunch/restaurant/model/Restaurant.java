@@ -17,6 +17,7 @@ import ru.javaprojects.mylunch.common.HasIdAndEmail;
 import ru.javaprojects.mylunch.common.model.NamedEntity;
 import ru.javaprojects.mylunch.meal.model.Meal;
 import ru.javaprojects.mylunch.menu.model.Menu;
+import ru.javaprojects.mylunch.vote.model.Vote;
 
 import java.util.List;
 
@@ -46,6 +47,12 @@ public class Restaurant extends NamedEntity implements HasIdAndEmail {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonManagedReference(value = "restaurant-menus")
     private List<Menu> menus;
+
+    @OneToMany(mappedBy = "restaurant", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OrderBy("votedDate DESC")
+    @JsonManagedReference(value = "restaurant-votes")
+    private List<Vote> votes;
 
     public Restaurant(Restaurant r) {
         this(r.id, r.name, r.email);

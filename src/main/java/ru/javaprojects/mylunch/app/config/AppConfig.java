@@ -15,6 +15,7 @@ import org.springframework.http.ProblemDetail;
 import ru.javaprojects.mylunch.common.util.JsonUtil;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.Map;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
@@ -45,5 +46,10 @@ public class AppConfig {
         // ErrorHandling: https://stackoverflow.com/questions/7421474/548473
         objectMapper.addMixIn(ProblemDetail.class, MixIn.class);
         JsonUtil.setMapper(objectMapper);
+    }
+
+    @Bean
+    Clock clock() {
+        return Clock.systemDefaultZone();
     }
 }

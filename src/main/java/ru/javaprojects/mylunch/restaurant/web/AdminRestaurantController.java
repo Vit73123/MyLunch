@@ -1,7 +1,6 @@
 package ru.javaprojects.mylunch.restaurant.web;
 
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -16,14 +15,12 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javaprojects.mylunch.common.validation.ValidationUtil.assureIdConsistent;
 import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkNew;
 
 @RestController
 @RequestMapping(value = AdminRestaurantController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class AdminRestaurantController extends AbstractRestaurantController {
-    protected final Logger log = getLogger(getClass());
 
     static final String REST_URL = "/api/admin/restaurants";
 

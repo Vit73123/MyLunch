@@ -1,6 +1,5 @@
 package ru.javaprojects.mylunch.menu.web;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,6 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkNew;
 import static ru.javaprojects.mylunch.menu.MenusUtil.createTo;
 import static ru.javaprojects.mylunch.menu.MenusUtil.createTos;
@@ -31,18 +29,17 @@ import static ru.javaprojects.mylunch.menu.MenusUtil.createTos;
 @RestController
 @RequestMapping(value = AdminMenuController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class AdminMenuController extends AbstractMenuController {
-    protected final Logger log = getLogger(getClass());
 
     static final String REST_URL = "/api/admin/restaurants/{restaurantId}/menus";
 
     @Autowired
-    protected ItemRepository itemRepository;
+    ItemRepository itemRepository;
 
     @Autowired
-    protected MealRepository mealRepository;
+    MealRepository mealRepository;
 
     @Autowired
-    protected RestaurantRepository restaurantRepository;
+    RestaurantRepository restaurantRepository;
 
     @GetMapping("/{id}")
     public MenuTo get(@PathVariable int id, @PathVariable int restaurantId) {

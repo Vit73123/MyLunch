@@ -31,7 +31,7 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Menu extends BaseEntity implements HasId {
 
-    @Column(name = "issued_date", nullable = false, columnDefinition = "timestamp default current_date", updatable = false)
+    @Column(name = "issued_date", nullable = false, columnDefinition = "date default current_date", updatable = false)
     @NotNull
     private LocalDate issuedDate = LocalDate.now();
 

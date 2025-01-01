@@ -7,12 +7,13 @@ import ru.javaprojects.mylunch.restaurant.to.RestaurantTo;
 import java.util.List;
 
 public class RestaurantTestData {
-    public static final MatcherFactory.Matcher<Restaurant> RESTAURANT_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Restaurant.class, "menus", "meals");
+    public static final MatcherFactory.Matcher<Restaurant> RESTAURANT_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Restaurant.class, "menus", "meals", "votes");
     public static final MatcherFactory.Matcher<RestaurantTo> RESTAURANT_TO_MATCHER = MatcherFactory.usingEqualsComparator(RestaurantTo.class);
 
     public static final int RESTAURANT1_ID = 1;
     public static final int RESTAURANT2_ID = 2;
     public static final int RESTAURANT3_ID = 3;
+    public static final int NOT_TODAY_RESTAURANT = RESTAURANT3_ID;
     public static final int NOT_FOUND = 100;
 
     public static final String RESTAURANT1_EMAIL = "restaurant_b@yandex.ru";

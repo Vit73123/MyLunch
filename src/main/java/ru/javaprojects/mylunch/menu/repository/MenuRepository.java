@@ -62,4 +62,9 @@ public interface MenuRepository extends BaseRepository<Menu> {
         this.findByIdAndRestaurantId(id, restaurantId).orElseThrow(
                 () -> new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + " not found"));
     }
+
+    default void checkExistsByRestaurantOnDate(LocalDate date, int restaurantId) {
+        this.findByDateAndRestaurantId(date, restaurantId).orElseThrow(
+                () -> new NotFoundException("Menu of restaurant id=" + restaurantId + " on date " + date + " not found"));
+    }
 }

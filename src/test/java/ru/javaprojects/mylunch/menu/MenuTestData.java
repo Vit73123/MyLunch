@@ -29,13 +29,9 @@ public class MenuTestData {
     public static final LocalDate NEW_DAY = LocalDate.of(2024, 12, 3);
 
     public static final int MENU1_ID = 1;
-    public static final int MENU2_ID = 2;
-    public static final int MENU3_ID = 3;
     public static final int MENU7_ID = 7;
     public static final int MENU8_ID = 8;
 
-    public static final int ITEM1_ID = 1;
-    public static final int ITEM3_ID = 3;
     public static final int ITEM12_ID = 12;
 
     public static final int NOT_FOUND = 100;
@@ -111,27 +107,26 @@ public class MenuTestData {
         item16.setMeal(meal4);   // DAY_3 MENU_7 RESTAURANT_2
     }
 
-//    public static final List<Item> menu1Items = List.of(item1);                     // DAY_1 RESTAURANT_3
-//    public static final List<Item> menu2Items = List.of(item3, item4, item2);       // DAY_1 RESTAURANT_1
-//    public static final List<Item> menu3Items = List.of(item6, item5);              // DAY_1 RESTAURANT_2
-//    public static final List<Item> menu4Items = List.of(item8, item7);              // DAY_2 RESTAURANT_1
-//    public static final List<Item> menu5Items = List.of(item9);                     // DAY_2 RESTAURANT_3
-//    public static final List<Item> menu6Items = List.of(item11, item10);            // DAY_2 RESTAURANT_2
+    public static final List<Item> menu1Items = List.of(item1);                     // DAY_1 RESTAURANT_3
+    public static final List<Item> menu2Items = List.of(item3, item4, item2);       // DAY_1 RESTAURANT_1
+    public static final List<Item> menu3Items = List.of(item6, item5);              // DAY_1 RESTAURANT_2
+    public static final List<Item> menu4Items = List.of(item8, item7);              // DAY_2 RESTAURANT_1
+    public static final List<Item> menu5Items = List.of(item9);                     // DAY_2 RESTAURANT_3
+    public static final List<Item> menu6Items = List.of(item11, item10);            // DAY_2 RESTAURANT_2
     public static final List<Item> menu7Items = List.of(item13, item12, item14);    // DAY_3 RESTAURANT_1
-//    public static final List<Item> menu8Items = List.of(item16, item15);            // DAY_3 RESTAURANT_2
+    public static final List<Item> menu8Items = List.of(item16, item15);            // DAY_3 RESTAURANT_2
 
-//    public static final List<Meal> menu1Meals = List.of(meal1);                     // DAY_1 RESTAURANT_3
-//    public static final List<Meal> menu2Meals = List.of(meal2, meal5, meal8);       // DAY_1 RESTAURANT_1
-//    public static final List<Meal> menu3Meals = List.of(meal4, meal3);              // DAY_1 RESTAURANT_2
-//    public static final List<Meal> menu4Meals = List.of(meal2, meal5);              // DAY_2 RESTAURANT_1
-//    public static final List<Meal> menu5Meals = List.of(meal6);                     // DAY_2 RESTAURANT_3
-//    public static final List<Meal> menu6Meals = List.of(meal4, meal7);              // DAY_2 RESTAURANT_2
-//    public static final List<Meal> menu7Meals = List.of(meal2, meal5, meal8);       // DAY_3 RESTAURANT_1
+    public static final List<Meal> menu1Meals = List.of(meal1);                     // DAY_1 RESTAURANT_3
+    public static final List<Meal> menu2Meals = List.of(meal2, meal5, meal8);       // DAY_1 RESTAURANT_1
+    public static final List<Meal> menu3Meals = List.of(meal4, meal3);              // DAY_1 RESTAURANT_2
+    public static final List<Meal> menu4Meals = List.of(meal2, meal5);              // DAY_2 RESTAURANT_1
+    public static final List<Meal> menu5Meals = List.of(meal6);                     // DAY_2 RESTAURANT_3
+    public static final List<Meal> menu6Meals = List.of(meal4, meal7);              // DAY_2 RESTAURANT_2
+    public static final List<Meal> menu7Meals = List.of(meal2, meal5, meal8);       // DAY_3 RESTAURANT_1
     public static final List<Meal> menu8Meals = List.of(meal4, meal7);              // DAY_3 RESTAURANT_2
 
     public static final List<Menu> restaurant1menus = List.of(menu7, menu4, menu2);
-//    public static final List<Item> menu8Items = List.of(item11, item12, item10);    // DAY_3 RESTAURANT_2
-//    public static final List<Item> todayMenus = List.of(item11, item12, item10);    // DAY_3 RESTAURANT_2
+    public static final List<Item> todayMenus = List.of(item11, item12, item10);    // DAY_3 RESTAURANT_2
 
     public static Menu getNewMenuOnDate(LocalDate date) {
         return new Menu(null, date, RESTAURANT3_ID);

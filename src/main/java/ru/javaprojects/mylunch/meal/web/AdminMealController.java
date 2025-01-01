@@ -25,15 +25,15 @@ import static ru.javaprojects.mylunch.meal.MealsUtil.*;
 @RestController
 @RequestMapping(value = AdminMealController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class AdminMealController {
-    protected final Logger log = getLogger(getClass());
+    private final Logger log = getLogger(getClass());
 
     static final String REST_URL = "/api/admin/restaurants/{restaurantId}/meals";
 
     @Autowired
-    protected MealRepository mealRepository;
+    MealRepository mealRepository;
 
     @Autowired
-    protected RestaurantRepository restaurantRepository;
+    RestaurantRepository restaurantRepository;
 
     @GetMapping("/{id}")
     public MealTo get(@PathVariable int id, @PathVariable int restaurantId) {

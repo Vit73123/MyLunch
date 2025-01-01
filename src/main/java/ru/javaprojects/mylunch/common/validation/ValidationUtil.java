@@ -4,6 +4,9 @@ import lombok.experimental.UtilityClass;
 import ru.javaprojects.mylunch.common.HasId;
 import ru.javaprojects.mylunch.common.error.IllegalRequestDataException;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 @UtilityClass
 public class ValidationUtil {
 
@@ -19,6 +22,13 @@ public class ValidationUtil {
             bean.setId(id);
         } else if (bean.id() != id) {
             throw new IllegalRequestDataException(bean.getClass().getSimpleName() + " must has id=" + id);
+        }
+    }
+
+    public static void checkTimeLimit(LocalTime time, LocalTime timeLimit) {
+        if (time.isAfter(timeLimit)) {
+            throw new IllegalRequestDataException("Voting is not allowed after " + timeLimit + ". Now "
+                    + time.format(DateTimeFormatter.ofPattern("HH:mm")));
         }
     }
 }
