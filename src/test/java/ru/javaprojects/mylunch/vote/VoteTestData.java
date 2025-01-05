@@ -1,6 +1,7 @@
 package ru.javaprojects.mylunch.vote;
 
 import ru.javaprojects.mylunch.MatcherFactory;
+import ru.javaprojects.mylunch.common.util.ClockHolder;
 import ru.javaprojects.mylunch.vote.model.Vote;
 import ru.javaprojects.mylunch.vote.to.VoteTo;
 
@@ -19,7 +20,7 @@ public class VoteTestData {
 
     public static final LocalDate DAY_1 = LocalDate.of(2024, 12, 1);
     public static final LocalDate DAY_2 = LocalDate.of(2024, 12, 2);
-    public static final LocalDate TODAY = LocalDate.now();
+    public static final LocalDate TODAY = ClockHolder.getDate();
     public static final LocalTime CURRENT_TIME = LocalTime.of(11, 0);
     public static final LocalDateTime NOW = LocalDateTime.of(TODAY, CURRENT_TIME);
     public static final LocalTime LATE_TIME = LocalTime.of(11, 1);
@@ -51,6 +52,6 @@ public class VoteTestData {
     }
 
     public static Vote getUpdated() {
-        return new Vote(VOTE5_ID, TODAY, CURRENT_TIME, RESTAURANT1_ID, ADMIN_ID);
+        return new Vote(VOTE6_ID, TODAY, CURRENT_TIME, RESTAURANT1_ID, ADMIN_ID);
     }
 }

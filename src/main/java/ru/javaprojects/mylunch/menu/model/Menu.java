@@ -15,7 +15,8 @@ import org.hibernate.validator.constraints.Range;
 import ru.javaprojects.mylunch.common.HasId;
 import ru.javaprojects.mylunch.common.View;
 import ru.javaprojects.mylunch.common.model.BaseEntity;
-import ru.javaprojects.mylunch.meal.model.Meal;
+import ru.javaprojects.mylunch.common.util.ClockHolder;
+import ru.javaprojects.mylunch.dish.model.Dish;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 
 import java.time.LocalDate;
@@ -25,7 +26,8 @@ import java.util.Set;
 @Entity
 @Table(name = "menu",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"issued_date", "restaurant_id"}, name = "menu_unique_date_restaurant_idx")})
+                @UniqueConstraint(columnNames = {"issued_date", "restaurant_id"}, name = "menu_unique_date_restaurant_idx")}
+)
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,7 +35,7 @@ public class Menu extends BaseEntity implements HasId {
 
     @Column(name = "issued_date", nullable = false, columnDefinition = "date default current_date", updatable = false)
     @NotNull
-    private LocalDate issuedDate = LocalDate.now();
+    private LocalDate issuedDate = ClockHolder.getDate();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false, insertable = false, updatable = false)
@@ -51,12 +53,12 @@ public class Menu extends BaseEntity implements HasId {
     @JoinTable(
             name = "menu_item",
             joinColumns = @JoinColumn(name = "menu_id"),
-            inverseJoinColumns = @JoinColumn(name = "meal_id")
+            inverseJoinColumns = @JoinColumn(name = "dish_id")
     )
     @OrderBy("description")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference(value = "menu-items")
-    private Set<Meal> items;
+    private Set<Dish> items;
 
     public Menu(Menu m) {
         this(m.id, m.issuedDate, m.restaurantId);

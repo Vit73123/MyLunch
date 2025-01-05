@@ -10,12 +10,13 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
 import ru.javaprojects.mylunch.common.View;
 import ru.javaprojects.mylunch.common.model.BaseEntity;
-import ru.javaprojects.mylunch.meal.model.Meal;
+import ru.javaprojects.mylunch.dish.model.Dish;
 
 @Entity
 @Table(name = "menu_item",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"menu_id", "meal_id"}, name = "menu_unique_menu_item_idx")})
+                @UniqueConstraint(columnNames = {"menu_id", "dish_id"}, name = "menu_unique_menu_dish_idx")}
+)
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,19 +34,19 @@ public class Item extends BaseEntity {
     private int menuId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "meal_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "dish_id", nullable = false, insertable = false, updatable = false)
     @OrderBy("description ASC")
-    @JsonBackReference(value = "meal-items")
+    @JsonBackReference(value = "dish-items")
     @NotNull(groups = View.Persist.class)
-    private Meal meal;
+    private Dish dish;
 
-    @Column(name = "meal_id", nullable = false)
+    @Column(name = "dish_id", nullable = false)
     @Range(min = 1)
-    private int mealId;
+    private int dishId;
 
-    public Item(Integer id, int menuId, int mealId) {
+    public Item(Integer id, int menuId, int dishId) {
         super(id);
         this.menuId = menuId;
-        this.mealId = mealId;
+        this.dishId = dishId;
     }
 }

@@ -17,7 +17,6 @@ import java.net.URI;
 import java.time.Clock;
 import java.time.ZoneOffset;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -88,7 +87,7 @@ public class VoteControllerTest extends AbstractControllerTest {
 
         ResultActions action = perform(MockMvcRequestBuilders.post(uri))
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
         Vote created = VOTE_MATCHER.readFromJson(action);
         int newId = created.id();
@@ -101,29 +100,30 @@ public class VoteControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @WithUserDetails(value = ADMIN_MAIL)
-    void update() throws Exception {
-        Clock testClock = Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
+    @WithUserDetails(value = GUEST_MAIL)
+    void createAfterTimeLimit() throws Exception {
+        Clock testClock = Clock.fixed(LATE.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         Clock beforeTestClock = ClockHolder.setClock(testClock);
 
-        Vote updatedVote = getUpdated();
+        Vote newVote = getNew();
+        newVote.setVotedTime(LATE_TIME);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
                 .queryParam("restaurantId", "{restaurantId}")
-                .buildAndExpand(updatedVote.getRestaurantId())
+                .buildAndExpand(newVote.getRestaurantId())
                 .toUri();
 
         ResultActions action = perform(MockMvcRequestBuilders.post(uri))
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-        Vote updated = VOTE_MATCHER.readFromJson(action);
-        int newId = updated.id();
-        updatedVote.setId(newId);
-        updatedVote.setVotedTime(updated.getVotedTime());
-        VOTE_MATCHER.assertMatch(updated, updatedVote);
-        VOTE_MATCHER.assertMatch(repository.getExisted(newId), updatedVote);
+        Vote created = VOTE_MATCHER.readFromJson(action);
+        int newId = created.id();
+        newVote.setId(newId);
+        newVote.setVotedTime(created.getVotedTime());
+        VOTE_MATCHER.assertMatch(created, newVote);
+        VOTE_MATCHER.assertMatch(repository.getExisted(newId), newVote);
 
         ClockHolder.setClock(beforeTestClock);
     }
@@ -152,52 +152,45 @@ public class VoteControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    void createAfterTimeLimit() throws Exception {
-        Clock testClock = Clock.fixed(LATE.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
+    void update() throws Exception {
+        Clock testClock = Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         Clock beforeTestClock = ClockHolder.setClock(testClock);
 
-        Vote newVote = getNew();
-        newVote.setVotedTime(LATE_TIME);
+        Vote updated = getUpdated();
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
                 .queryParam("restaurantId", "{restaurantId}")
-                .buildAndExpand(newVote.getRestaurantId())
+                .buildAndExpand(updated.getRestaurantId())
                 .toUri();
 
-        perform(MockMvcRequestBuilders.post(uri))
+        perform(MockMvcRequestBuilders.put(uri))
                 .andDo(print())
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isNoContent());
+
+        VOTE_MATCHER.assertMatch(repository.getExisted(updated.id()), updated);
 
         ClockHolder.setClock(beforeTestClock);
     }
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    void delete() throws Exception {
-        Clock testClock = Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
+    void updateAfterTimeLimit() throws Exception {
+        Clock testClock = Clock.fixed(LATE.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         Clock beforeTestClock = ClockHolder.setClock(testClock);
 
-        perform(MockMvcRequestBuilders.delete(REST_URL))
+        Vote updated = getUpdated();
+        updated.setVotedTime(LATE_TIME);
+
+        URI uri = UriComponentsBuilder
+                .fromUriString(REST_URL)
+                .queryParam("restaurantId", "{restaurantId}")
+                .buildAndExpand(updated.getRestaurantId())
+                .toUri();
+
+        perform(MockMvcRequestBuilders.put(uri))
                 .andDo(print())
-                .andExpect(status().isNoContent());
-
-        assertFalse(repository.findById(VOTE6_ID).isPresent());
-
-        ClockHolder.setClock(beforeTestClock);
-    }
-
-    @Test
-    @WithUserDetails(value = GUEST_MAIL)
-    void deleteNotFound() throws Exception {
-        Clock testClock = Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
-        Clock beforeTestClock = ClockHolder.setClock(testClock);
-
-        perform(MockMvcRequestBuilders.delete(REST_URL))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-
-        assertTrue(repository.findById(VOTE6_ID).isPresent());
+                .andExpect(status().isUnprocessableEntity());
 
         ClockHolder.setClock(beforeTestClock);
     }

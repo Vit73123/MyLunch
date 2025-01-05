@@ -1,4 +1,4 @@
-package ru.javaprojects.mylunch.meal.web;
+package ru.javaprojects.mylunch.dish.web;
 
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -9,9 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import ru.javaprojects.mylunch.meal.model.Meal;
-import ru.javaprojects.mylunch.meal.repository.MealRepository;
-import ru.javaprojects.mylunch.meal.to.MealTo;
+import ru.javaprojects.mylunch.dish.to.DishTo;
+import ru.javaprojects.mylunch.dish.model.Dish;
+import ru.javaprojects.mylunch.dish.repository.DishRepository;
+import ru.javaprojects.mylunch.menu.repository.ItemRepository;
 import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
 
 import java.net.URI;
@@ -20,43 +21,45 @@ import java.util.List;
 import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javaprojects.mylunch.common.validation.ValidationUtil.assureIdConsistent;
 import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkNew;
-import static ru.javaprojects.mylunch.meal.MealsUtil.*;
+import static ru.javaprojects.mylunch.dish.DishesUtil.*;
 
 @RestController
-@RequestMapping(value = AdminMealController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-public class AdminMealController {
+@RequestMapping(value = AdminDishController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+public class AdminDishController {
     private final Logger log = getLogger(getClass());
 
-    static final String REST_URL = "/api/admin/restaurants/{restaurantId}/meals";
+    static final String REST_URL = "/api/admin/restaurants/{restaurantId}/dishes";
 
     @Autowired
-    MealRepository mealRepository;
+    private DishRepository dishRepository;
 
     @Autowired
-    RestaurantRepository restaurantRepository;
+    private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private ItemRepository itemRepository;
 
     @GetMapping("/{id}")
-    public MealTo get(@PathVariable int id, @PathVariable int restaurantId) {
+    public DishTo get(@PathVariable int id, @PathVariable int restaurantId) {
         log.info("get with id={} of restaurant id={}", id, restaurantId);
-        return createTo(mealRepository.getExistedByRestaurantId(id, restaurantId));
+        return createTo(dishRepository.getExistedByRestaurantId(id, restaurantId));
     }
 
     @GetMapping
     @Transactional
-    public List<MealTo> getByRestaurant(@PathVariable int restaurantId) {
+    public List<DishTo> getByRestaurant(@PathVariable int restaurantId) {
         log.info("getByRestaurant id={}", restaurantId);
         restaurantRepository.checkExists(restaurantId);
-        return createTos(mealRepository.getByRestaurant(restaurantId));
+        return createTos(dishRepository.getByRestaurant(restaurantId));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     @Transactional
-    public ResponseEntity<Meal> createWithLocation(@Valid @RequestBody MealTo mealTo, @PathVariable int restaurantId) {
-        log.info("create {} of restaurant id={}", mealTo, restaurantId);
-        checkNew(mealTo);
+    public ResponseEntity<Dish> createWithLocation(@Valid @RequestBody DishTo dishTo, @PathVariable int restaurantId) {
+        log.info("create {} of restaurant id={}", dishTo, restaurantId);
+        checkNew(dishTo);
         restaurantRepository.checkExists(restaurantId);
-        Meal created = mealRepository.prepareAndSave(createNewFromTo(mealTo), restaurantId);
+        Dish created = dishRepository.prepareAndSave(createNewFromTo(dishTo), restaurantId);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL)
                 .buildAndExpand(restaurantId)
@@ -67,17 +70,20 @@ public class AdminMealController {
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
-    public void update(@Valid @RequestBody MealTo mealTo, @PathVariable int id, @PathVariable int restaurantId) {
-        log.info("update {} with id={} of restaurant id={}", mealTo, id, restaurantId);
-        assureIdConsistent(mealTo, id);
-        Meal meal = mealRepository.getExistedByRestaurantId(id, restaurantId);
-        mealRepository.prepareAndSave(updateFromTo(meal, mealTo), restaurantId);
+    public void update(@Valid @RequestBody DishTo dishTo, @PathVariable int id, @PathVariable int restaurantId) {
+        log.info("update {} with id={} of restaurant id={}", dishTo, id, restaurantId);
+        assureIdConsistent(dishTo, id);
+        Dish dish = dishRepository.getExistedByRestaurantId(id, restaurantId);
+        itemRepository.checkDishNotExists(id);
+        dishRepository.prepareAndSave(updateFromTo(dish, dishTo), restaurantId);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
     public void delete(@PathVariable int id, @PathVariable int restaurantId) {
         log.info("delete with id={} of restaurant id={}", id, restaurantId);
-        mealRepository.deleteExistedByRestaurantId(id, restaurantId);
+        itemRepository.checkDishNotExists(id);
+        dishRepository.deleteExistedByRestaurantId(id, restaurantId);
     }
 }

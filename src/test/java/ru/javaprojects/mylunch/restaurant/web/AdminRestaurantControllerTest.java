@@ -8,6 +8,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.javaprojects.mylunch.AbstractControllerTest;
+import ru.javaprojects.mylunch.menu.MenuTestData;
 import ru.javaprojects.mylunch.restaurant.RestaurantsUtil;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.javaprojects.mylunch.common.util.JsonUtil.writeValue;
 import static ru.javaprojects.mylunch.menu.MenuTestData.DAY_1;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;
+import static ru.javaprojects.mylunch.restaurant.RestaurantsUtil.createTo;
 import static ru.javaprojects.mylunch.restaurant.web.AdminRestaurantController.REST_URL;
 import static ru.javaprojects.mylunch.restaurant.web.UniqueRestaurantMailValidator.EXCEPTION_DUPLICATE_EMAIL;
 import static ru.javaprojects.mylunch.user.UserTestData.ADMIN_MAIL;
@@ -88,6 +90,34 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void getWithMenuOnDate() throws Exception {
+        URI uri = UriComponentsBuilder
+                .fromUriString(REST_URL_SLASH + "menus/on-date")
+                .queryParam("date", "{date}")
+                .buildAndExpand(DAY_1)
+                .toUri();
+
+        perform(MockMvcRequestBuilders.get(uri))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RESTAURANT_DAILY_MENU_TO_MATCHER.contentJson(
+                        RestaurantsUtil.createWithDailyMenuTos(MenuTestData.day1Menus)));
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void getWithMenuOnToday() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL_SLASH + "menus/on-today"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RESTAURANT_DAILY_MENU_TO_MATCHER.contentJson(
+                        RestaurantsUtil.createWithDailyMenuTos(MenuTestData.todayMenus)));
+    }
+
+    @Test
     void getUnAuth() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL))
                 .andDo(print())
@@ -108,7 +138,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
 
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(newRestaurant)))
+                .content(writeValue(createTo(newRestaurant))))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
@@ -126,7 +156,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(invalid)))
+                .content(writeValue(createTo(invalid))))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -138,7 +168,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(REST_URL_SLASH + RESTAURANT1_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(updated)))
+                .content(writeValue(createTo(updated))))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
@@ -152,7 +182,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(REST_URL_SLASH + NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(notFound)))
+                .content(writeValue(createTo(notFound))))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -165,7 +195,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(REST_URL_SLASH + RESTAURANT1_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(invalid)))
+                .content(writeValue(createTo(invalid))))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -178,7 +208,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(REST_URL_SLASH + RESTAURANT1_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(updated)))
+                .content(writeValue(createTo(updated))))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -191,7 +221,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(REST_URL_SLASH + RESTAURANT2_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(updated)))
+                .content(writeValue(createTo(updated))))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string(containsString(EXCEPTION_DUPLICATE_EMAIL)));

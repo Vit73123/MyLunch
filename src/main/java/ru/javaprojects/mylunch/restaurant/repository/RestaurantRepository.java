@@ -25,13 +25,8 @@ public interface RestaurantRepository extends BaseRepository<Restaurant> {
     @Query("SELECT r FROM Restaurant r JOIN r.menus m WHERE m.issuedDate=:date ORDER BY r.name ASC")
     List<Restaurant> getOnDate(@Param("date") LocalDate date);
 
-    @Transactional
-    default Restaurant checkAndSave(Restaurant restaurant) {
-        if (!restaurant.isNew()) {
-            checkExists(restaurant.id());
-        }
-        return save(restaurant);
-    }
+    @Query("SELECT r FROM Restaurant r LEFT JOIN FETCH r.menus m LEFT JOIN FETCH m.items WHERE m.issuedDate=:date ORDER BY r.name ASC")
+    List<Restaurant> getWithMenusOnDate(@Param("date") LocalDate date);
 
     default void checkExists(int id) {
         if (!existsById(id)) {

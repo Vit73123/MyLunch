@@ -5,9 +5,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 import ru.javaprojects.mylunch.common.HasId;
 import ru.javaprojects.mylunch.common.to.BaseTo;
-import ru.javaprojects.mylunch.meal.MealsUtil;
-import ru.javaprojects.mylunch.meal.model.Meal;
-import ru.javaprojects.mylunch.meal.to.MealTo;
+import ru.javaprojects.mylunch.dish.DishesUtil;
+import ru.javaprojects.mylunch.dish.model.Dish;
+import ru.javaprojects.mylunch.dish.to.DishTo;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -21,13 +21,13 @@ public class MenuTo extends BaseTo implements HasId {
 
     Integer restaurantId;
 
-    List<MealTo> items;
+    List<DishTo> items;
 
-    public MenuTo(Integer id, LocalDate issuedDate, Integer restaurantId, Collection<Meal> items) {
+    public MenuTo(Integer id, LocalDate issuedDate, Integer restaurantId, Collection<Dish> items) {
         super(id);
         this.issuedDate = issuedDate;
         this.restaurantId = restaurantId;
-        this.items = items != null ? MealsUtil.createTos(items) : null;
+        this.items = items != null ? DishesUtil.createTos(items) : null;
     }
 
     @Override

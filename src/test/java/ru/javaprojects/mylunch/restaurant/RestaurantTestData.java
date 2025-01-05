@@ -2,13 +2,15 @@ package ru.javaprojects.mylunch.restaurant;
 
 import ru.javaprojects.mylunch.MatcherFactory;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
+import ru.javaprojects.mylunch.restaurant.to.RestaurantDailyMenuTo;
 import ru.javaprojects.mylunch.restaurant.to.RestaurantTo;
 
 import java.util.List;
 
 public class RestaurantTestData {
-    public static final MatcherFactory.Matcher<Restaurant> RESTAURANT_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Restaurant.class, "menus", "meals", "votes");
+    public static final MatcherFactory.Matcher<Restaurant> RESTAURANT_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Restaurant.class, "menus", "dishes", "votes");
     public static final MatcherFactory.Matcher<RestaurantTo> RESTAURANT_TO_MATCHER = MatcherFactory.usingEqualsComparator(RestaurantTo.class);
+    public static final MatcherFactory.Matcher<RestaurantDailyMenuTo> RESTAURANT_DAILY_MENU_TO_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(RestaurantDailyMenuTo.class);
 
     public static final int RESTAURANT1_ID = 1;
     public static final int RESTAURANT2_ID = 2;

@@ -8,7 +8,6 @@ import ru.javaprojects.mylunch.common.error.NotFoundException;
 import ru.javaprojects.mylunch.vote.model.Vote;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,12 +36,13 @@ public interface VoteRepository extends BaseRepository<Vote> {
     }
 
     @Transactional
-    default Vote prepareAndSave(LocalDate date, LocalTime time, int restaurantId, int userId) {
-        Vote vote = findByDateAndUserId(date, userId).orElse(
-                new Vote(null, date, userId)
-        );
-        vote.setVotedTime(time);
-        vote.setRestaurantId(restaurantId);
+    default Vote prepareAndSave(Vote vote) {
+        if (vote.isNew()) {
+            if (findByDateAndUserId(vote.getVotedDate(), vote.getUserId()).orElse(null) != null) {
+                throw new NotFoundException(
+                        "Vote for user id=" + vote.getUserId() + " on date " + vote.getVotedDate() + " already exists");
+            }
+        }
         return this.save(vote);
     }
 

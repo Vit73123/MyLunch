@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javaprojects.mylunch.common.BaseRepository;
+import ru.javaprojects.mylunch.common.error.IllegalRequestDataException;
 import ru.javaprojects.mylunch.common.error.NotFoundException;
 import ru.javaprojects.mylunch.menu.model.Menu;
 
@@ -19,15 +20,15 @@ public interface MenuRepository extends BaseRepository<Menu> {
 
     default Menu getExisted(int id, int restaurantId) {
         return this.findByIdAndRestaurantId(id, restaurantId).orElseThrow(
-                () -> new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + " not found"));
+                () -> new NotFoundException("Menu with id=" + id + " for restaurant id=" + restaurantId + " not found"));
     }
 
-    @Query("SELECT m FROM Menu m WHERE m.issuedDate=:issuedDate AND m.restaurantId=:restaurantId")
+    @Query("SELECT m FROM Menu m JOIN FETCH m.items WHERE m.issuedDate=:issuedDate AND m.restaurantId=:restaurantId")
     Optional<Menu> findByDateAndRestaurantId(LocalDate issuedDate, int restaurantId);
 
     default Menu getExistedByDate(LocalDate date, int restaurantId) {
         return this.findByDateAndRestaurantId(date, restaurantId).orElseThrow(
-                () -> new NotFoundException("Menu with date=" + date + " of restaurant id=" + restaurantId + " not found"));
+                () -> new NotFoundException("Menu on date=" + date + " for restaurant id=" + restaurantId + " not found"));
     }
 
     @Query("SELECT m FROM Menu m WHERE m.restaurantId=:restaurantId ORDER BY m.issuedDate DESC")
@@ -36,13 +37,24 @@ public interface MenuRepository extends BaseRepository<Menu> {
     @Query("SELECT m FROM Menu m WHERE m.issuedDate=:date ORDER BY m.restaurant.name ASC")
     List<Menu> getByDate(LocalDate date);
 
+    @Query("SELECT m FROM Menu m JOIN FETCH m.items i JOIN FETCH m.restaurant r WHERE m.issuedDate=:date ORDER BY m.restaurant.name ASC")
+    List<Menu> getWithItemsAndRestaurantsByDate(LocalDate date);
+
     @Query("SELECT m FROM Menu m LEFT JOIN FETCH m.items i " +
             "WHERE m.id=:id AND m.restaurantId=:restaurantId AND i.restaurantId=:restaurantId ORDER BY i.description ASC")
-    Optional<Menu> findWithMealsByRestaurantId(int id, int restaurantId);
+    Optional<Menu> findWithDishesByRestaurantId(int id, int restaurantId);
 
-    default Menu getExistedWithMeals(int id, int restaurantId) {
-        return this.findWithMealsByRestaurantId(id, restaurantId).orElseThrow(
-                () -> new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + " not found"));
+    default Menu getExistedWithDishes(int id, int restaurantId) {
+        return this.findWithDishesByRestaurantId(id, restaurantId).orElseThrow(
+                () -> new NotFoundException("Menu with id=" + id + " for restaurant id=" + restaurantId + " not found"));
+    }
+
+    @Transactional
+    default Menu prepareAndSave(LocalDate date, int restaurantId) {
+        if (findByDateAndRestaurantId(date, restaurantId).orElse(null) != null) {
+            throw new IllegalRequestDataException("Menu on date=" + date + " for restaurant id=" + restaurantId + " already exists");
+        }
+        return save(new Menu(null, date, restaurantId));
     }
 
     @Transactional
@@ -54,17 +66,12 @@ public interface MenuRepository extends BaseRepository<Menu> {
     @SuppressWarnings("all") // transaction invoked
     default void deleteExisted(int id, int restaurantId) {
         if (deleteByIdAndRestaurantId(id, restaurantId) == 0) {
-            throw new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + " not found");
+            throw new NotFoundException("Menu with id=" + id + " for restaurant id=" + restaurantId + " not found");
         }
     }
 
     default void checkExistsByRestaurant(int id, int restaurantId) {
         this.findByIdAndRestaurantId(id, restaurantId).orElseThrow(
-                () -> new NotFoundException("Menu with id=" + id + " of restaurant id=" + restaurantId + " not found"));
-    }
-
-    default void checkExistsByRestaurantOnDate(LocalDate date, int restaurantId) {
-        this.findByDateAndRestaurantId(date, restaurantId).orElseThrow(
-                () -> new NotFoundException("Menu of restaurant id=" + restaurantId + " on date " + date + " not found"));
+                () -> new NotFoundException("Menu with id=" + id + " for restaurant id=" + restaurantId + " not found"));
     }
 }

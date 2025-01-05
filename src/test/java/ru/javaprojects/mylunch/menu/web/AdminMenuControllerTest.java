@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.javaprojects.mylunch.AbstractControllerTest;
-import ru.javaprojects.mylunch.meal.MealTestData;
+import ru.javaprojects.mylunch.dish.DishTestData;
 import ru.javaprojects.mylunch.menu.ItemsUtil;
 import ru.javaprojects.mylunch.menu.MenuTestData;
 import ru.javaprojects.mylunch.menu.model.Item;
@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.javaprojects.mylunch.meal.MealTestData.MEAL3_ID;
-import static ru.javaprojects.mylunch.meal.MealTestData.MEAL5_ID;
+import static ru.javaprojects.mylunch.dish.DishTestData.DISH3_ID;
+import static ru.javaprojects.mylunch.dish.DishTestData.DISH5_ID;
 import static ru.javaprojects.mylunch.menu.MenuTestData.NOT_FOUND;
 import static ru.javaprojects.mylunch.menu.MenuTestData.*;
 import static ru.javaprojects.mylunch.menu.MenusUtil.createTo;
@@ -202,8 +202,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .toUri();
 
         Menu newMenu = getNewMenuOnDate(NEW_DAY);
-        ResultActions action = perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+        ResultActions action = perform(MockMvcRequestBuilders.post(uri))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
@@ -406,8 +405,8 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItem() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("mealId", "{mealId}")
-                .buildAndExpand(RESTAURANT2_ID, MENU8_ID, MEAL3_ID)
+                .queryParam("dishId", "{dishId}")
+                .buildAndExpand(RESTAURANT2_ID, MENU8_ID, DISH3_ID)
                 .toUri();
 
         Item newItem = getNewItem();
@@ -428,8 +427,8 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotFoundRestaurant() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("mealId", "{mealId}")
-                .buildAndExpand(RestaurantTestData.NOT_FOUND, MENU8_ID, MEAL3_ID)
+                .queryParam("dishId", "{dishId}")
+                .buildAndExpand(RestaurantTestData.NOT_FOUND, MENU8_ID, DISH3_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.post(uri)
@@ -443,8 +442,8 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotOwnRestaurant() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("mealId", "{mealId}")
-                .buildAndExpand(RESTAURANT1_ID, MENU8_ID, MEAL3_ID)
+                .queryParam("dishId", "{dishId}")
+                .buildAndExpand(RESTAURANT1_ID, MENU8_ID, DISH3_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.post(uri)
@@ -458,8 +457,8 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotFoundMeal() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("mealId", "{mealId}")
-                .buildAndExpand(RESTAURANT2_ID, MENU8_ID, MealTestData.NOT_FOUND)
+                .queryParam("dishId", "{dishId}")
+                .buildAndExpand(RESTAURANT2_ID, MENU8_ID, DishTestData.NOT_FOUND)
                 .toUri();
 
         perform(MockMvcRequestBuilders.post(uri)
@@ -473,8 +472,8 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotOwnMeal() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("mealId", "{mealId}")
-                .buildAndExpand(RESTAURANT2_ID, MENU8_ID, MEAL5_ID)
+                .queryParam("dishId", "{dishId}")
+                .buildAndExpand(RESTAURANT2_ID, MENU8_ID, DISH5_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.post(uri)
@@ -488,8 +487,8 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotFoundMenu() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("mealId", "{mealId}")
-                .buildAndExpand(RESTAURANT2_ID, MenuTestData.NOT_FOUND, MEAL3_ID)
+                .queryParam("dishId", "{dishId}")
+                .buildAndExpand(RESTAURANT2_ID, MenuTestData.NOT_FOUND, DISH3_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.post(uri)
@@ -503,8 +502,8 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotOwnMenu() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("mealId", "{mealId}")
-                .buildAndExpand(RESTAURANT2_ID, MENU7_ID, MEAL3_ID)
+                .queryParam("dishId", "{dishId}")
+                .buildAndExpand(RESTAURANT2_ID, MENU7_ID, DISH3_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.post(uri)
@@ -519,8 +518,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void deleteItem() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("itemId", "{itemId}")
+                .fromUriString(REST_URL_SLASH + "{menuId}/items/{itemId}")
                 .buildAndExpand(RESTAURANT1_ID, MENU7_ID, ITEM12_ID)
                 .toUri();
 
@@ -536,8 +534,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void deleteItemNotFoundRestaurant() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("itemId", "{itemId}")
+                .fromUriString(REST_URL_SLASH + "{menuId}/items/{itemId}")
                 .buildAndExpand(NOT_FOUND, MENU7_ID, ITEM12_ID)
                 .toUri();
 
@@ -553,8 +550,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void deleteItemNotOwnRestaurant() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("itemId", "{itemId}")
+                .fromUriString(REST_URL_SLASH + "{menuId}/items/{itemId}")
                 .buildAndExpand(RESTAURANT2_ID, MENU7_ID, ITEM12_ID)
                 .toUri();
 
@@ -570,8 +566,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void deleteItemNotMenu() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("itemId", "{itemId}")
+                .fromUriString(REST_URL_SLASH + "{menuId}/items/{itemId}")
                 .buildAndExpand(RESTAURANT1_ID, NOT_FOUND, ITEM12_ID)
                 .toUri();
 
@@ -587,8 +582,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void deleteItemNotOwnMenu() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("itemId", "{itemId}")
+                .fromUriString(REST_URL_SLASH + "{menuId}/items/{itemId}")
                 .buildAndExpand(RESTAURANT1_ID, MENU8_ID, ITEM12_ID)
                 .toUri();
 
@@ -600,4 +594,3 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
         assertTrue(itemRepository.findById(ITEM12_ID).isPresent());
     }
 }
-

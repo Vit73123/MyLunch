@@ -1,4 +1,4 @@
-package ru.javaprojects.mylunch.meal.to;
+package ru.javaprojects.mylunch.dish.to;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -11,7 +11,7 @@ import ru.javaprojects.mylunch.common.validation.NoHtml;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class MealTo extends BaseTo implements HasId {
+public class DishTo extends BaseTo implements HasId {
     @Size(max = 255)
     @NotBlank
     @NoHtml  // https://stackoverflow.com/questions/17480809
@@ -20,7 +20,7 @@ public class MealTo extends BaseTo implements HasId {
     @Range(min = 5)
     int price;
 
-    public MealTo(Integer id, String description, int price) {
+    public DishTo(Integer id, String description, int price) {
         super(id);
         this.description = description;
         this.price = price;
@@ -28,6 +28,6 @@ public class MealTo extends BaseTo implements HasId {
 
     @Override
     public String toString() {
-        return "MealTo:" + id + '[' + description + ' ' + price + ']';
+        return "DishTo:" + id + '[' + description + ' ' + price + ']';
     }
 }

@@ -1,27 +1,27 @@
-package ru.javaprojects.mylunch.meal.repository;
+package ru.javaprojects.mylunch.dish.repository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import ru.javaprojects.mylunch.AbstractRepositoryTest;
 import ru.javaprojects.mylunch.common.error.NotFoundException;
-import ru.javaprojects.mylunch.meal.model.Meal;
+import ru.javaprojects.mylunch.dish.model.Dish;
 import ru.javaprojects.mylunch.restaurant.RestaurantTestData;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.javaprojects.mylunch.meal.MealTestData.*;
+import static ru.javaprojects.mylunch.dish.DishTestData.*;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.RESTAURANT1_ID;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.RESTAURANT3_ID;
 
-class MealRepositoryTest extends AbstractRepositoryTest {
+class DishRepositoryTest extends AbstractRepositoryTest {
 
     @Autowired
-    MealRepository repository;
+    DishRepository repository;
 
     @Test
     void get() {
-        Meal actual = repository.getExistedByRestaurantId(MEAL1_ID, RESTAURANT3_ID);
-        MEAL_MATCHER.assertMatch(actual, meal1);
+        Dish actual = repository.getExistedByRestaurantId(DISH1_ID, RESTAURANT3_ID);
+        DISH_MATCHER.assertMatch(actual, dish1);
     }
 
     @Test
@@ -33,61 +33,61 @@ class MealRepositoryTest extends AbstractRepositoryTest {
     @Test
     void getNotOwn() {
         assertThrows(NotFoundException.class, () ->
-                repository.getExistedByRestaurantId(MEAL1_ID, RESTAURANT1_ID));
+                repository.getExistedByRestaurantId(DISH1_ID, RESTAURANT1_ID));
     }
 
     @Test
     void getOwnNotFoundRestaurant() {
         assertThrows(NotFoundException.class, () ->
-                repository.getExistedByRestaurantId(MEAL1_ID, RestaurantTestData.NOT_FOUND));
+                repository.getExistedByRestaurantId(DISH1_ID, RestaurantTestData.NOT_FOUND));
     }
 
     @Test
     void save() {
-        Meal created = repository.prepareAndSave(getNew(), RESTAURANT1_ID);
+        Dish created = repository.prepareAndSave(getNew(), RESTAURANT1_ID);
         int newId = created.id();
-        Meal newItem = getNew();
+        Dish newItem = getNew();
         newItem.setId(newId);
         newItem.setRestaurantId(created.getRestaurantId());
-        MEAL_MATCHER.assertMatch(created, newItem);
-        MEAL_MATCHER.assertMatch(repository.getExistedByRestaurantId(newId, RESTAURANT1_ID), newItem);
+        DISH_MATCHER.assertMatch(created, newItem);
+        DISH_MATCHER.assertMatch(repository.getExistedByRestaurantId(newId, RESTAURANT1_ID), newItem);
     }
 
     @Test
     void saveNotOwn() {
         assertThrows(DataIntegrityViolationException.class, () ->
-                repository.prepareAndSave(new Meal(null, "Обед несуществующего ресторана", 100, 0), RestaurantTestData.NOT_FOUND));
+                repository.prepareAndSave(new Dish(null, "Обед несуществующего ресторана", 100, 0), RestaurantTestData.NOT_FOUND));
     }
 
     @Test
     void duplicateDescriptionRestaurantSave() {
         assertThrows(DataIntegrityViolationException.class, () ->
-                repository.prepareAndSave(new Meal(null, meal1.getDescription(), 1000, 0), RESTAURANT3_ID));
+                repository.prepareAndSave(new Dish(null, dish1.getDescription(), 1000, 0), RESTAURANT3_ID));
     }
 
     @Test
     void update() {
-        Meal updated = getUpdated();
-        repository.prepareAndSave(updated, RESTAURANT3_ID);
-        MEAL_MATCHER.assertMatch(repository.getExistedByRestaurantId(MEAL1_ID, RESTAURANT3_ID), getUpdated());
+        Dish updated = getUpdated();
+        repository.prepareAndSave(updated, RESTAURANT1_ID);
+        DISH_MATCHER.assertMatch(repository.getExistedByRestaurantId(NOT_USED, RESTAURANT1_ID), getUpdated());
     }
 
     @Test
     void updateNotFound() {
         assertThrows(NotFoundException.class, () ->
-                repository.prepareAndSave(new Meal(NOT_FOUND, "Несуществующий обед", 1000, 0), RESTAURANT3_ID));
+                repository.prepareAndSave(new Dish(NOT_FOUND, "Несуществующий обед", 1000, 0), RESTAURANT3_ID));
     }
 
     @Test
     void updateNotOwn() {
         assertThrows(NotFoundException.class, () ->
-                repository.prepareAndSave(new Meal(MEAL1_ID, "Обед несуществующего ресторана", 1000, 0), RestaurantTestData.NOT_FOUND));
+                repository.prepareAndSave(new Dish(DISH1_ID, "Обед несуществующего ресторана", 1000, 0), RestaurantTestData.NOT_FOUND));
     }
 
     @Test
     void delete() {
-        repository.deleteExistedByRestaurantId(MEAL1_ID, RESTAURANT3_ID);
-        assertFalse(repository.findById(MEAL1_ID).isPresent());
+        repository.deleteExistedByRestaurantId(DISH1_ID, RESTAURANT3_ID);
+        assertFalse(repository.findById(DISH1_ID).isPresent());
     }
 
     @Test
@@ -99,12 +99,12 @@ class MealRepositoryTest extends AbstractRepositoryTest {
     @Test
     void deleteNotOwn() {
         assertThrows(NotFoundException.class, () ->
-                repository.deleteExistedByRestaurantId(MEAL1_ID, RESTAURANT1_ID));
+                repository.deleteExistedByRestaurantId(DISH1_ID, RESTAURANT1_ID));
     }
 
     @Test
     void getByRestaurant() {
-        MEAL_MATCHER.assertMatch(repository.getByRestaurant(RESTAURANT1_ID), restaurant1meals);
+        DISH_MATCHER.assertMatch(repository.getByRestaurant(RESTAURANT1_ID), restaurant1dishes);
     }
 
     @Test

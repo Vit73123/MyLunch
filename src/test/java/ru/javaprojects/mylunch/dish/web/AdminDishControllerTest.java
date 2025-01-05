@@ -1,4 +1,4 @@
-package ru.javaprojects.mylunch.meal.web;
+package ru.javaprojects.mylunch.dish.web;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +8,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.javaprojects.mylunch.AbstractControllerTest;
-import ru.javaprojects.mylunch.meal.MealsUtil;
-import ru.javaprojects.mylunch.meal.model.Meal;
-import ru.javaprojects.mylunch.meal.repository.MealRepository;
+import ru.javaprojects.mylunch.dish.DishesUtil;
+import ru.javaprojects.mylunch.dish.model.Dish;
+import ru.javaprojects.mylunch.dish.repository.DishRepository;
 import ru.javaprojects.mylunch.restaurant.RestaurantTestData;
 
 import java.net.URI;
@@ -21,34 +21,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javaprojects.mylunch.common.util.JsonUtil.writeValue;
-import static ru.javaprojects.mylunch.meal.MealTestData.*;
-import static ru.javaprojects.mylunch.meal.MealsUtil.createTo;
-import static ru.javaprojects.mylunch.meal.MealsUtil.createTos;
-import static ru.javaprojects.mylunch.meal.web.AdminMealController.REST_URL;
+import static ru.javaprojects.mylunch.dish.DishTestData.*;
+import static ru.javaprojects.mylunch.dish.DishesUtil.createTo;
+import static ru.javaprojects.mylunch.dish.DishesUtil.createTos;
+import static ru.javaprojects.mylunch.dish.web.AdminDishController.REST_URL;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.RESTAURANT1_ID;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.RESTAURANT3_ID;
 import static ru.javaprojects.mylunch.user.UserTestData.ADMIN_MAIL;
 import static ru.javaprojects.mylunch.user.UserTestData.USER_MAIL;
 
-public class AdminMealControllerTest extends AbstractControllerTest {
+public class AdminDishControllerTest extends AbstractControllerTest {
 
     private static final String REST_URL_SLASH = REST_URL + '/';
 
     @Autowired
-    private MealRepository repository;
+    private DishRepository repository;
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void get() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
+                .fromUriString(REST_URL_SLASH + DISH1_ID)
                 .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
         perform(MockMvcRequestBuilders.get(uri))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MEAL_TO_MATCHER.contentJson(createTo(meal1)));
+                .andExpect(DISH_TO_MATCHER.contentJson(createTo(dish1)));
     }
 
     @Test
@@ -67,7 +67,7 @@ public class AdminMealControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void getNotOwn() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
+                .fromUriString(REST_URL_SLASH + DISH1_ID)
                 .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
         perform(MockMvcRequestBuilders.get(uri))
@@ -79,7 +79,7 @@ public class AdminMealControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void getOwnNotFoundRestaurant() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
+                .fromUriString(REST_URL_SLASH + DISH1_ID)
                 .buildAndExpand(RestaurantTestData.NOT_FOUND)
                 .toUri();
         perform(MockMvcRequestBuilders.get(uri))
@@ -98,7 +98,7 @@ public class AdminMealControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MEAL_TO_MATCHER.contentJson(createTos(restaurant1meals)));
+                .andExpect(DISH_TO_MATCHER.contentJson(createTos(restaurant1dishes)));
     }
 
     @Test
@@ -143,19 +143,19 @@ public class AdminMealControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
 
-        Meal newMeal = getNew();
+        Dish newDish = getNew();
         ResultActions action = perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(MealsUtil.createTo(newMeal))))
+                .content(writeValue(DishesUtil.createTo(newDish))))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Meal created = MEAL_MATCHER.readFromJson(action);
+        Dish created = DISH_MATCHER.readFromJson(action);
         int newId = created.id();
-        newMeal.setId(newId);
-        newMeal.setRestaurantId(created.getRestaurantId());
-        MEAL_MATCHER.assertMatch(created, newMeal);
-        MEAL_MATCHER.assertMatch(repository.getExistedByRestaurantId(newId, RESTAURANT3_ID), newMeal);
+        newDish.setId(newId);
+        newDish.setRestaurantId(created.getRestaurantId());
+        DISH_MATCHER.assertMatch(created, newDish);
+        DISH_MATCHER.assertMatch(repository.getExistedByRestaurantId(newId, RESTAURANT3_ID), newDish);
     }
 
     @Test
@@ -166,10 +166,10 @@ public class AdminMealControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RestaurantTestData.NOT_FOUND)
                 .toUri();
 
-        Meal newMeal = getNew();
+        Dish newDish = getNew();
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(MealsUtil.createTo(newMeal))))
+                .content(writeValue(DishesUtil.createTo(newDish))))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -182,18 +182,18 @@ public class AdminMealControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
 
-        Meal invalidNew;
-        invalidNew = new Meal(null, "", 100, 0);
+        Dish invalidNew;
+        invalidNew = new Dish(null, "", 100, 0);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(MealsUtil.createTo(invalidNew))))
+                .content(writeValue(DishesUtil.createTo(invalidNew))))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
 
-        invalidNew = new Meal(null, "Invalid meal", 0, 0);
+        invalidNew = new Dish(null, "Invalid dish", 0, 0);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(MealsUtil.createTo(invalidNew))))
+                .content(writeValue(DishesUtil.createTo(invalidNew))))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -201,11 +201,11 @@ public class AdminMealControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void update() throws Exception {
-        Meal updated = getUpdated();
+        Dish updated = getUpdated();
 
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
-                .buildAndExpand(RESTAURANT3_ID)
+                .fromUriString(REST_URL_SLASH + NOT_USED)
+                .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.put(uri)
@@ -214,17 +214,17 @@ public class AdminMealControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        MEAL_MATCHER.assertMatch(repository.getExistedByRestaurantId(MEAL1_ID, RESTAURANT3_ID), getUpdated());
+        DISH_MATCHER.assertMatch(repository.getExistedByRestaurantId(NOT_USED, RESTAURANT1_ID), getUpdated());
     }
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateNotFound() throws Exception {
-        Meal notFound = new Meal(NOT_FOUND, "Несуществующий обед", 100, RESTAURANT3_ID);
+        Dish notFound = new Dish(NOT_FOUND, "Несуществующий обед", 100, RESTAURANT1_ID);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + NOT_FOUND)
-                .buildAndExpand(RESTAURANT3_ID)
+                .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.put(uri)
@@ -237,10 +237,10 @@ public class AdminMealControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateNotFoundRestaurant() throws Exception {
-        Meal notFound = new Meal(MEAL1_ID, "Обед несуществующего ресторана", 100, RestaurantTestData.NOT_FOUND);
+        Dish notFound = new Dish(DISH1_ID, "Обед несуществующего ресторана", 100, RestaurantTestData.NOT_FOUND);
 
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
+                .fromUriString(REST_URL_SLASH + DISH1_ID)
                 .buildAndExpand(RestaurantTestData.NOT_FOUND)
                 .toUri();
 
@@ -253,27 +253,61 @@ public class AdminMealControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    void updateInvalid() throws Exception {
-        Meal invalid;
+    void updateNotOwnRestaurant() throws Exception {
+        Dish notFound = new Dish(DISH1_ID, "Обед чужого ресторана", 100, RESTAURANT1_ID);
 
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
+                .fromUriString(REST_URL_SLASH + DISH1_ID)
+                .buildAndExpand(RESTAURANT1_ID)
+                .toUri();
+
+        perform(MockMvcRequestBuilders.put(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(notFound)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void updateUsed() throws Exception {
+        Dish notFound = new Dish(DISH1_ID, "Обед, используемый в меню", 100, RESTAURANT3_ID);
+
+        URI uri = UriComponentsBuilder
+                .fromUriString(REST_URL_SLASH + DISH1_ID)
                 .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
 
-        invalid = new Meal(meal1);
+        perform(MockMvcRequestBuilders.put(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(notFound)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void updateInvalid() throws Exception {
+        Dish invalid;
+
+        URI uri = UriComponentsBuilder
+                .fromUriString(REST_URL_SLASH + NOT_USED)
+                .buildAndExpand(RESTAURANT1_ID)
+                .toUri();
+
+        invalid = new Dish(notUsed);
         invalid.setDescription("");
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(MealsUtil.createTo(invalid))))
+                .content(writeValue(DishesUtil.createTo(invalid))))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
 
-        invalid = new Meal(meal1);
+        invalid = new Dish(notUsed);
         invalid.setPrice(0);
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(MealsUtil.createTo(invalid))))
+                .content(writeValue(DishesUtil.createTo(invalid))))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -281,17 +315,17 @@ public class AdminMealControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateHtmlUnsafe() throws Exception {
-        Meal updated = new Meal(meal1);
+        Dish updated = new Dish(notUsed);
         updated.setDescription("<script>alert(123)</script>");
 
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
-                .buildAndExpand(RESTAURANT3_ID)
+                .fromUriString(REST_URL_SLASH + DISH1_ID)
+                .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(MealsUtil.createTo(updated))))
+                .content(writeValue(DishesUtil.createTo(updated))))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -299,17 +333,17 @@ public class AdminMealControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateDuplicated() throws Exception {
-        Meal updated = new Meal(meal1);
-        updated.setDescription(MEAL6_DESCRIPTION);
+        Dish updated = new Dish(notUsed);
+        updated.setDescription(DISH8_DESCRIPTION);
 
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
-                .buildAndExpand(RESTAURANT3_ID)
+                .fromUriString(REST_URL_SLASH + NOT_USED)
+                .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(MealsUtil.createTo(updated))))
+                .content(writeValue(DishesUtil.createTo(updated))))
                 .andDo(print())
                 .andExpect(status().isConflict());
     }
@@ -318,15 +352,15 @@ public class AdminMealControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void delete() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
-                .buildAndExpand(RESTAURANT3_ID)
+                .fromUriString(REST_URL_SLASH + NOT_USED)
+                .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.delete(uri))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        assertFalse(repository.findById(MEAL1_ID).isPresent());
+        assertFalse(repository.findById(NOT_USED).isPresent());
     }
 
     @Test
@@ -334,7 +368,7 @@ public class AdminMealControllerTest extends AbstractControllerTest {
     void deleteNotFound() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + NOT_FOUND)
-                .buildAndExpand(RESTAURANT3_ID)
+                .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.delete(uri))
@@ -346,22 +380,22 @@ public class AdminMealControllerTest extends AbstractControllerTest {
     @WithUserDetails(value = ADMIN_MAIL)
     void deleteNotOwn() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
-                .buildAndExpand(RESTAURANT1_ID)
+                .fromUriString(REST_URL_SLASH + NOT_USED)
+                .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
 
         perform(MockMvcRequestBuilders.delete(uri))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        assertTrue(repository.findById(MEAL1_ID).isPresent());
+        assertTrue(repository.findById(DISH1_ID).isPresent());
     }
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void deleteOwnNotFoundRestaurant() throws Exception {
         URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + MEAL1_ID)
+                .fromUriString(REST_URL_SLASH + NOT_USED)
                 .buildAndExpand(RestaurantTestData.NOT_FOUND)
                 .toUri();
 
@@ -369,7 +403,22 @@ public class AdminMealControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        assertTrue(repository.findById(MEAL1_ID).isPresent());
+        assertTrue(repository.findById(DISH1_ID).isPresent());
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void deleteUsed() throws Exception {
+        URI uri = UriComponentsBuilder
+                .fromUriString(REST_URL_SLASH + DISH1_ID)
+                .buildAndExpand(RESTAURANT3_ID)
+                .toUri();
+
+        perform(MockMvcRequestBuilders.delete(uri))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+
+        assertTrue(repository.findById(DISH1_ID).isPresent());
     }
 }
 

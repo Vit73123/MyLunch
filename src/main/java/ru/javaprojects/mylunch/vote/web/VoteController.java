@@ -13,8 +13,8 @@ import ru.javaprojects.mylunch.menu.repository.MenuRepository;
 import ru.javaprojects.mylunch.vote.model.Vote;
 import ru.javaprojects.mylunch.vote.to.VoteTo;
 
-import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class VoteController extends AbstractVoteController {
 
     @GetMapping("/on-today")
     VoteTo get(@AuthenticationPrincipal AuthUser authUser) {
-        return super.getByUserOnDate(LocalDate.now(), authUser.id());
+        return super.getByUserOnDate(ClockHolder.getDate(), authUser.id());
     }
 
     @GetMapping
@@ -43,27 +43,27 @@ public class VoteController extends AbstractVoteController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.CREATED)
     @Transactional
-    public Vote createOrUpdate(@RequestParam int restaurantId, @AuthenticationPrincipal AuthUser authUser) {
-        log.info("create/update on today for user id={}", authUser);
-        Clock clock = ClockHolder.getClock();
-        LocalTime time = LocalTime.now(clock);
-        checkTimeLimit(time, app.getVotedTimeLimit());
-        LocalDate today = LocalDate.now();
-        menuRepository.checkExistsByRestaurantOnDate(today, restaurantId);
-        return voteRepository.prepareAndSave(today, time, restaurantId, authUser.id());
+    public Vote create(@RequestParam int restaurantId, @AuthenticationPrincipal AuthUser authUser) {
+        log.info("create on today for restaurant id={} user id={}", authUser, restaurantId);
+        LocalDateTime now = ClockHolder.getDateTime();
+        Vote vote = new Vote(null, now.toLocalDate(), now.toLocalTime(), restaurantId, authUser.id());
+        return voteRepository.prepareAndSave(vote);
     }
 
-    @DeleteMapping
+    @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
-    public void delete(@AuthenticationPrincipal AuthUser authUser) {
-        log.info("delete on today for user id={}", authUser);
-        Clock clock = ClockHolder.getClock();
-        LocalTime time = LocalTime.now(clock);
+    public void update(@RequestParam int restaurantId, @AuthenticationPrincipal AuthUser authUser) {
+        log.info("update on today for restaurant id={} user id={}", authUser, restaurantId);
+        LocalDateTime now = ClockHolder.getDateTime();
+        LocalTime time = now.toLocalTime();
         checkTimeLimit(time, app.getVotedTimeLimit());
-        LocalDate today = LocalDate.now();
-        voteRepository.deleteExisted(today, authUser.id());
+        LocalDate today = now.toLocalDate();
+        Vote vote = voteRepository.getByDateAndUser(today, authUser.id());
+        vote.setVotedTime(time);
+        vote.setRestaurantId(restaurantId);
+        voteRepository.prepareAndSave(vote);
     }
 }

@@ -8,7 +8,7 @@ import ru.javaprojects.mylunch.common.error.NotFoundException;
 import ru.javaprojects.mylunch.menu.model.Item;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.javaprojects.mylunch.meal.MealTestData.MEAL5_ID;
+import static ru.javaprojects.mylunch.dish.DishTestData.DISH5_ID;
 import static ru.javaprojects.mylunch.menu.MenuTestData.*;
 
 public class ItemRepositoryTest extends AbstractRepositoryTest {
@@ -23,7 +23,7 @@ public class ItemRepositoryTest extends AbstractRepositoryTest {
         Item newItem = getNewItem();
         newItem.setId(newId);
         newItem.setMenuId(newItem.getMenuId());
-        newItem.setMealId(newItem.getMealId());
+        newItem.setDishId(newItem.getDishId());
         ITEM_MATCHER.assertMatch(created, newItem);
         ITEM_MATCHER.assertMatch(repository.getExisted(newId), newItem);
     }
@@ -31,7 +31,7 @@ public class ItemRepositoryTest extends AbstractRepositoryTest {
     @Test
     void saveDuplicated() {
         assertThrows(DataIntegrityViolationException.class, () ->
-                repository.save(new Item(null, MENU7_ID, MEAL5_ID)));
+                repository.save(new Item(null, MENU7_ID, DISH5_ID)));
     }
 
     @Test

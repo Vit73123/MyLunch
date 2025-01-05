@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ProblemDetail;
+import ru.javaprojects.mylunch.common.util.ClockHolder;
 import ru.javaprojects.mylunch.common.util.JsonUtil;
 
 import java.sql.SQLException;
@@ -50,6 +51,6 @@ public class AppConfig {
 
     @Bean
     Clock clock() {
-        return Clock.systemDefaultZone();
+        return ClockHolder.getClock();
     }
 }

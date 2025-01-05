@@ -8,10 +8,16 @@ import lombok.Value;
 import ru.javaprojects.mylunch.common.HasIdAndEmail;
 import ru.javaprojects.mylunch.common.to.NamedTo;
 import ru.javaprojects.mylunch.common.validation.NoHtml;
+import ru.javaprojects.mylunch.dish.DishesUtil;
+import ru.javaprojects.mylunch.dish.model.Dish;
+import ru.javaprojects.mylunch.dish.to.DishTo;
+
+import java.util.Collection;
+import java.util.List;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class RestaurantTo extends NamedTo implements HasIdAndEmail {
+public class RestaurantDailyMenuTo extends NamedTo implements HasIdAndEmail {
 
     @Email
     @NotBlank
@@ -19,9 +25,23 @@ public class RestaurantTo extends NamedTo implements HasIdAndEmail {
     @NoHtml  // https://stackoverflow.com/questions/17480809
     String email;
 
-    public RestaurantTo(Integer id, String name, String email) {
+    Menu menu;
+
+    public RestaurantDailyMenuTo(Integer id, String name, String email, Integer menuId, Collection<Dish> items) {
         super(id, name);
         this.email = email;
+        this.menu = new Menu(menuId, items != null ? DishesUtil.createTos(items) : null);
+    }
+
+    private static class Menu {
+        Integer id;
+
+        List<DishTo> items;
+
+        public Menu(Integer id, List<DishTo> items) {
+            this.id = id;
+            this.items = items;
+        }
     }
 
     @Override
@@ -30,6 +50,7 @@ public class RestaurantTo extends NamedTo implements HasIdAndEmail {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email=" + email +
+                ", menu=" + menu +
                 '}';
     }
 }

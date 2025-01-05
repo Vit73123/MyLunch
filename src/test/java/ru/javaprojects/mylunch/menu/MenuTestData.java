@@ -1,7 +1,8 @@
 package ru.javaprojects.mylunch.menu;
 
 import ru.javaprojects.mylunch.MatcherFactory;
-import ru.javaprojects.mylunch.meal.model.Meal;
+import ru.javaprojects.mylunch.common.util.ClockHolder;
+import ru.javaprojects.mylunch.dish.model.Dish;
 import ru.javaprojects.mylunch.menu.model.Item;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.menu.to.ItemTo;
@@ -14,18 +15,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static ru.javaprojects.mylunch.meal.MealTestData.*;
+import static ru.javaprojects.mylunch.dish.DishTestData.*;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;
 
 public class MenuTestData {
     public static final MatcherFactory.Matcher<Menu> MENU_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Menu.class, "restaurant", "items");
     public static final MatcherFactory.Matcher<MenuTo> MENU_TO_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(MenuTo.class);
-    public static final MatcherFactory.Matcher<Item> ITEM_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Item.class, "menu", "meal");
+    public static final MatcherFactory.Matcher<Item> ITEM_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Item.class, "menu", "dish");
     public static final MatcherFactory.Matcher<ItemTo> ITEM_TO_MATCHER = MatcherFactory.usingEqualsComparator(ItemTo.class);
 
     public static final LocalDate DAY_1 = LocalDate.of(2024, 12, 1);
     public static final LocalDate DAY_2 = LocalDate.of(2024, 12, 2);
-    public static final LocalDate TODAY = LocalDate.now();
+    public static final LocalDate TODAY = ClockHolder.getDate();
     public static final LocalDate NEW_DAY = LocalDate.of(2024, 12, 3);
 
     public static final int MENU1_ID = 1;
@@ -56,55 +57,64 @@ public class MenuTestData {
     public static final Item item9 = new Item(9, 5, 6);     // DAY_2 MENU_5 RESTAURANT_3
     public static final Item item10 = new Item(10, 6, 7);   // DAY_2 MENU_6 RESTAURANT_2
     public static final Item item11 = new Item(11, 6, 4);   // DAY_2 MENU_6 RESTAURANT_2
-    public static final Item item12 = new Item(12, 7, 5);   // DAY_3 MENU_7 RESTAURANT_1
-    public static final Item item13 = new Item(13, 7, 2);   // DAY_3 MENU_7 RESTAURANT_1
-    public static final Item item14 = new Item(14, 7, 8);   // DAY_3 MENU_7 RESTAURANT_1
-    public static final Item item15 = new Item(15, 8, 7);   // DAY_3 MENU_8 RESTAURANT_2
-    public static final Item item16 = new Item(16, 8, 4);   // DAY_3 MENU_8 RESTAURANT_2
+    public static final Item item12 = new Item(12, 7, 5);   // TODAY MENU_7 RESTAURANT_1
+    public static final Item item13 = new Item(13, 7, 2);   // TODAY MENU_7 RESTAURANT_1
+    public static final Item item14 = new Item(14, 7, 8);   // TODAY MENU_7 RESTAURANT_1
+    public static final Item item15 = new Item(15, 8, 7);   // TODAY MENU_8 RESTAURANT_2
+    public static final Item item16 = new Item(16, 8, 4);   // TODAY MENU_8 RESTAURANT_2
 
     static {
-        menu1.setItems(sortedItems(meal1));                 // DAY_1 RESTAURANT_3
-        menu2.setItems(sortedItems(meal8, meal2, meal5));   // DAY_1 RESTAURANT_1
-        menu3.setItems(sortedItems(meal3, meal4));          // DAY_1 RESTAURANT_2
-        menu4.setItems(sortedItems(meal5, meal2));          // DAY_2 RESTAURANT_1
-        menu5.setItems(sortedItems(meal6));                 // DAY_2 RESTAURANT_3
-        menu6.setItems(sortedItems(meal7, meal4));          // DAY_2 RESTAURANT_2
-        menu7.setItems(sortedItems(meal5, meal2, meal8));   // DAY_3 RESTAURANT_1
-        menu8.setItems(sortedItems(meal7, meal4));          // DAY_3 RESTAURANT_2
+        menu1.setRestaurant(restaurant3);                       // DAY_1 RESTAURANT_1
+        menu2.setRestaurant(restaurant1);                       // DAY_1 RESTAURANT_1
+        menu3.setRestaurant(restaurant2);                       // DAY_1 RESTAURANT_1
+        menu4.setRestaurant(restaurant1);                       // DAY_2 RESTAURANT_1
+        menu5.setRestaurant(restaurant3);                       // DAY_2 RESTAURANT_1
+        menu6.setRestaurant(restaurant2);                       // DAY_2 RESTAURANT_1
+        menu7.setRestaurant(restaurant1);                       // TODAY RESTAURANT_1
+        menu8.setRestaurant(restaurant2);                       // TODAY RESTAURANT_1
 
-        item1.setMenu(menu1);     // DAY_1 MENU_1 RESTAURANT_3
-        item2.setMenu(menu2);     // DAY_1 MENU_2 RESTAURANT_1
-        item3.setMenu(menu2);     // DAY_1 MENU_2 RESTAURANT_1
-        item4.setMenu(menu2);     // DAY_1 MENU_2 RESTAURANT_1
-        item5.setMenu(menu3);     // DAY_1 MENU_3 RESTAURANT_2
-        item6.setMenu(menu3);     // DAY_1 MENU_3 RESTAURANT_2
-        item7.setMenu(menu4);     // DAY_2 MENU_4 RESTAURANT_1
-        item8.setMenu(menu4);     // DAY_2 MENU_4 RESTAURANT_1
-        item9.setMenu(menu5);     // DAY_2 MENU_5 RESTAURANT_3
-        item10.setMenu(menu6);   // DAY_2 MENU_6 RESTAURANT_2
-        item11.setMenu(menu6);   // DAY_2 MENU_6 RESTAURANT_2
-        item12.setMenu(menu7);   // DAY_3 MENU_7 RESTAURANT_1
-        item13.setMenu(menu7);   // DAY_3 MENU_7 RESTAURANT_1
-        item14.setMenu(menu7);   // DAY_3 MENU_7 RESTAURANT_1
-        item15.setMenu(menu8);   // DAY_3 MENU_7 RESTAURANT_2
-        item16.setMenu(menu8);   // DAY_3 MENU_7 RESTAURANT_2
+        menu1.setItems(sortedItems(dish1));                    // DAY_1 RESTAURANT_3
+        menu2.setItems(sortedItems(dish8, dish2, dish5));    // DAY_1 RESTAURANT_1
+        menu3.setItems(sortedItems(dish3, dish4));            // DAY_1 RESTAURANT_2
+        menu4.setItems(sortedItems(dish5, dish2));            // DAY_2 RESTAURANT_1
+        menu5.setItems(sortedItems(dish6));                    // DAY_2 RESTAURANT_3
+        menu6.setItems(sortedItems(dish7, dish4));            // DAY_2 RESTAURANT_2
+        menu7.setItems(sortedItems(dish5, dish2, dish8));    // TODAY RESTAURANT_1
+        menu8.setItems(sortedItems(dish7, dish4));            // TODAY RESTAURANT_2
 
-        item1.setMeal(meal1);     // DAY_1 MENU_1 RESTAURANT_3
-        item2.setMeal(meal8);     // DAY_1 MENU_2 RESTAURANT_1
-        item3.setMeal(meal2);     // DAY_1 MENU_2 RESTAURANT_1
-        item4.setMeal(meal5);     // DAY_1 MENU_2 RESTAURANT_1
-        item5.setMeal(meal3);     // DAY_1 MENU_3 RESTAURANT_2
-        item6.setMeal(meal4);     // DAY_1 MENU_3 RESTAURANT_2
-        item7.setMeal(meal5);     // DAY_2 MENU_4 RESTAURANT_1
-        item8.setMeal(meal2);     // DAY_2 MENU_4 RESTAURANT_1
-        item9.setMeal(meal6);     // DAY_2 MENU_5 RESTAURANT_3
-        item10.setMeal(meal7);   // DAY_2 MENU_6 RESTAURANT_2
-        item11.setMeal(meal4);   // DAY_2 MENU_6 RESTAURANT_2
-        item12.setMeal(meal5);   // DAY_3 MENU_7 RESTAURANT_1
-        item13.setMeal(meal2);   // DAY_3 MENU_7 RESTAURANT_1
-        item14.setMeal(meal8);   // DAY_3 MENU_7 RESTAURANT_1
-        item15.setMeal(meal7);   // DAY_3 MENU_7 RESTAURANT_2
-        item16.setMeal(meal4);   // DAY_3 MENU_7 RESTAURANT_2
+        item1.setMenu(menu1);       // DAY_1 MENU_1 RESTAURANT_3
+        item2.setMenu(menu2);       // DAY_1 MENU_2 RESTAURANT_1
+        item3.setMenu(menu2);       // DAY_1 MENU_2 RESTAURANT_1
+        item4.setMenu(menu2);       // DAY_1 MENU_2 RESTAURANT_1
+        item5.setMenu(menu3);       // DAY_1 MENU_3 RESTAURANT_2
+        item6.setMenu(menu3);       // DAY_1 MENU_3 RESTAURANT_2
+        item7.setMenu(menu4);       // DAY_2 MENU_4 RESTAURANT_1
+        item8.setMenu(menu4);       // DAY_2 MENU_4 RESTAURANT_1
+        item9.setMenu(menu5);       // DAY_2 MENU_5 RESTAURANT_3
+        item10.setMenu(menu6);      // DAY_2 MENU_6 RESTAURANT_2
+        item11.setMenu(menu6);      // DAY_2 MENU_6 RESTAURANT_2
+        item12.setMenu(menu7);      // TODAY MENU_7 RESTAURANT_1
+        item13.setMenu(menu7);      // TODAY MENU_7 RESTAURANT_1
+        item14.setMenu(menu7);      // TODAY MENU_7 RESTAURANT_1
+        item15.setMenu(menu8);      // TODAY MENU_7 RESTAURANT_2
+        item16.setMenu(menu8);      // TODAY MENU_7 RESTAURANT_2
+
+        item1.setDish(dish1);      // DAY_1 MENU_1 RESTAURANT_3
+        item2.setDish(dish8);      // DAY_1 MENU_2 RESTAURANT_1
+        item3.setDish(dish2);      // DAY_1 MENU_2 RESTAURANT_1
+        item4.setDish(dish5);      // DAY_1 MENU_2 RESTAURANT_1
+        item5.setDish(dish3);      // DAY_1 MENU_3 RESTAURANT_2
+        item6.setDish(dish4);      // DAY_1 MENU_3 RESTAURANT_2
+        item7.setDish(dish5);      // DAY_2 MENU_4 RESTAURANT_1
+        item8.setDish(dish2);      // DAY_2 MENU_4 RESTAURANT_1
+        item9.setDish(dish6);      // DAY_2 MENU_5 RESTAURANT_3
+        item10.setDish(dish7);     // DAY_2 MENU_6 RESTAURANT_2
+        item11.setDish(dish4);     // DAY_2 MENU_6 RESTAURANT_2
+        item12.setDish(dish5);     // TODAY MENU_7 RESTAURANT_1
+        item13.setDish(dish2);     // TODAY MENU_7 RESTAURANT_1
+        item14.setDish(dish8);     // TODAY MENU_7 RESTAURANT_1
+        item15.setDish(dish7);     // TODAY MENU_7 RESTAURANT_2
+        item16.setDish(dish4);     // TODAY MENU_7 RESTAURANT_2
     }
 
     public static final List<Item> menu1Items = List.of(item1);                     // DAY_1 RESTAURANT_3
@@ -113,31 +123,33 @@ public class MenuTestData {
     public static final List<Item> menu4Items = List.of(item8, item7);              // DAY_2 RESTAURANT_1
     public static final List<Item> menu5Items = List.of(item9);                     // DAY_2 RESTAURANT_3
     public static final List<Item> menu6Items = List.of(item11, item10);            // DAY_2 RESTAURANT_2
-    public static final List<Item> menu7Items = List.of(item13, item12, item14);    // DAY_3 RESTAURANT_1
-    public static final List<Item> menu8Items = List.of(item16, item15);            // DAY_3 RESTAURANT_2
+    public static final List<Item> menu7Items = List.of(item13, item12, item14);    // TODAY RESTAURANT_1
+    public static final List<Item> menu8Items = List.of(item16, item15);            // TODAY RESTAURANT_2
 
-    public static final List<Meal> menu1Meals = List.of(meal1);                     // DAY_1 RESTAURANT_3
-    public static final List<Meal> menu2Meals = List.of(meal2, meal5, meal8);       // DAY_1 RESTAURANT_1
-    public static final List<Meal> menu3Meals = List.of(meal4, meal3);              // DAY_1 RESTAURANT_2
-    public static final List<Meal> menu4Meals = List.of(meal2, meal5);              // DAY_2 RESTAURANT_1
-    public static final List<Meal> menu5Meals = List.of(meal6);                     // DAY_2 RESTAURANT_3
-    public static final List<Meal> menu6Meals = List.of(meal4, meal7);              // DAY_2 RESTAURANT_2
-    public static final List<Meal> menu7Meals = List.of(meal2, meal5, meal8);       // DAY_3 RESTAURANT_1
-    public static final List<Meal> menu8Meals = List.of(meal4, meal7);              // DAY_3 RESTAURANT_2
+    public static final List<Dish> MENU_1_DISHES = List.of(dish1);                 // DAY_1 RESTAURANT_3
+    public static final List<Dish> MENU_2_DISHES = List.of(dish2, dish5, dish8); // DAY_1 RESTAURANT_1
+    public static final List<Dish> MENU_3_DISHES = List.of(dish4, dish3);         // DAY_1 RESTAURANT_2
+    public static final List<Dish> MENU_4_DISHES = List.of(dish2, dish5);         // DAY_2 RESTAURANT_1
+    public static final List<Dish> MENU_5_DISHES = List.of(dish6);                 // DAY_2 RESTAURANT_3
+    public static final List<Dish> MENU_6_DISHES = List.of(dish4, dish7);         // DAY_2 RESTAURANT_2
+    public static final List<Dish> MENU_7_DISHES = List.of(dish2, dish5, dish8); // TODAY RESTAURANT_1
+    public static final List<Dish> MENU_8_DISHES = List.of(dish4, dish7);         // TODAY RESTAURANT_2
 
-    public static final List<Menu> restaurant1menus = List.of(menu7, menu4, menu2);
-    public static final List<Item> todayMenus = List.of(item11, item12, item10);    // DAY_3 RESTAURANT_2
+    public static final List<Menu> restaurant1menus = List.of(menu7, menu4, menu2); // ALL FOR RESTAURANT_1
+    public static final List<Menu> day1Menus = List.of(menu3, menu2, menu1);        // DAY_1 SORTED BY RESTAURANTS NAMES
+    public static final List<Menu> todayMenus = List.of(menu8, menu7);              // TODAY SORTED BY RESTAURANTS NAMES
+    public static final List<Item> todayMenu = List.of(item11, item12, item10);     // TODAY RESTAURANT_2
 
     public static Menu getNewMenuOnDate(LocalDate date) {
         return new Menu(null, date, RESTAURANT3_ID);
     }
 
     public static Item getNewItem() {
-        return new Item(null, MENU8_ID, MEAL3_ID);
+        return new Item(null, MENU8_ID, DISH3_ID);
     }
 
-    private static Set<Meal> sortedItems(Meal... meals) {
-        return Set.of(meals).stream().sorted(
-                Comparator.comparing(Meal::getDescription)).collect(Collectors.toCollection(LinkedHashSet::new));
+    private static Set<Dish> sortedItems(Dish... dishes) {
+        return Set.of(dishes).stream().sorted(
+                Comparator.comparing(Dish::getDescription)).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

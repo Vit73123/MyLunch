@@ -4,6 +4,9 @@ import jakarta.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
 
 import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -11,6 +14,21 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ClockHolder {
 
     private static final AtomicReference<Clock> CLOCK_REFERENCE = new AtomicReference<>(Clock.systemDefaultZone());
+
+    @Nonnull
+    public static LocalDateTime getDateTime() {
+        return LocalDateTime.now(getClock());
+    }
+
+    @Nonnull
+    public static LocalDate getDate() {
+        return LocalDate.now(getClock());
+    }
+
+    @Nonnull
+    public static LocalTime getTime() {
+        return LocalTime.now(getClock());
+    }
 
     @Nonnull
     public static Clock getClock() {

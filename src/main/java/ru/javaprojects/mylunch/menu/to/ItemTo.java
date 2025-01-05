@@ -20,14 +20,17 @@ public class ItemTo extends BaseTo implements HasId {
     @Range(min = 5)
     int price;
 
-    public ItemTo(Integer id, String description, int price) {
+    Integer dishId;
+
+    public ItemTo(Integer id, String description, int price, int dishId) {
         super(id);
         this.description = description;
         this.price = price;
+        this.dishId = dishId;
     }
 
     @Override
     public String toString() {
-        return "MealTo:" + id + '[' + description + ' ' + price + ']';
+        return "DishTo:" + id + '[' + description + ' ' + price + " dishId=" + dishId + ']';
     }
 }

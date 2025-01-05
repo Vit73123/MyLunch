@@ -11,7 +11,7 @@ import ru.javaprojects.mylunch.restaurant.RestaurantTestData;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.javaprojects.mylunch.meal.MealTestData.MEAL_MATCHER;
+import static ru.javaprojects.mylunch.dish.DishTestData.DISH_MATCHER;
 import static ru.javaprojects.mylunch.menu.MenuTestData.*;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.NOT_FOUND;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;
@@ -103,9 +103,9 @@ class MenuRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void getWithItems() {
-        Menu actual = repository.getExistedWithMeals(MENU8_ID, RESTAURANT2_ID);
+        Menu actual = repository.getExistedWithDishes(MENU8_ID, RESTAURANT2_ID);
         MENU_MATCHER.assertMatch(actual, menu8);
-        MEAL_MATCHER.assertMatch(actual.getItems(), menu8Meals);
+        DISH_MATCHER.assertMatch(actual.getItems(), MENU_8_DISHES);
     }
 
     @Test

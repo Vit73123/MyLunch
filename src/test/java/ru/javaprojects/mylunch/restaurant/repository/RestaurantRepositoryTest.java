@@ -54,13 +54,6 @@ class RestaurantRepositoryTest extends AbstractRepositoryTest {
     }
 
     @Test
-    void updateNotFound() {
-        Restaurant updated = new Restaurant(NOT_FOUND, "Несуществующий ресторан", "not_found_restaurant@yandex.ru");
-        assertThrows(NotFoundException.class, () -> repository.checkAndSave(updated));
-        assertFalse(repository.findById(NOT_FOUND).isPresent());
-    }
-
-    @Test
     void delete() {
         repository.deleteExisted(RESTAURANT1_ID);
         assertFalse(repository.findById(RESTAURANT1_ID).isPresent());
@@ -86,5 +79,10 @@ class RestaurantRepositoryTest extends AbstractRepositoryTest {
     @Test
     void getOnDate() {
         RESTAURANT_MATCHER.assertMatch(repository.getOnDate(MenuTestData.DAY_1), day1Restaurants);
+    }
+
+    @Test
+    void getWithMenusOnDate() {
+        RESTAURANT_MATCHER.assertMatch(repository.getWithMenusOnDate(MenuTestData.DAY_1), day1Restaurants);
     }
 }

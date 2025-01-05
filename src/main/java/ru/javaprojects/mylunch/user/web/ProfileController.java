@@ -39,7 +39,6 @@ public class ProfileController extends AbstractUserController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<User> register(@Valid @RequestBody UserTo userTo) {
         log.info("register {}", userTo);
         checkNew(userTo);

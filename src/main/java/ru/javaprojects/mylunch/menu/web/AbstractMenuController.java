@@ -2,6 +2,7 @@ package ru.javaprojects.mylunch.menu.web;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javaprojects.mylunch.menu.repository.MenuRepository;
 import ru.javaprojects.mylunch.menu.to.MenuTo;
 
@@ -16,6 +17,7 @@ public abstract class AbstractMenuController {
     @Autowired
     protected MenuRepository menuRepository;
 
+    @Transactional
     public MenuTo getOnDate(LocalDate date, int restaurantId) {
         log.info("getOnDate {} for restaurant id={}", date, restaurantId);
         return createTo(menuRepository.getExistedByDate(date, restaurantId));

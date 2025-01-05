@@ -1,4 +1,4 @@
-package ru.javaprojects.mylunch.meal.model;
+package ru.javaprojects.mylunch.dish.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -21,13 +21,14 @@ import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 import java.util.Set;
 
 @Entity
-@Table(name = "meal",
+@Table(name = "dish",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"restaurant_id", "description"}, name = "meal_unique_menu_id_description_idx")})
+                @UniqueConstraint(columnNames = {"restaurant_id", "description"}, name = "dish_unique_restaurant_id_description_idx")}
+)
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Meal extends BaseEntity implements HasId {
+public class Dish extends BaseEntity implements HasId {
 
     @Column(name = "description", nullable = false)
     @Size(max = 255)
@@ -41,7 +42,7 @@ public class Meal extends BaseEntity implements HasId {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false, insertable = false, updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonBackReference(value = "restaurant-meals")
+    @JsonBackReference(value = "restaurant-dishes")
     @NotNull(groups = View.Persist.class)
     private Restaurant restaurant;
 
@@ -54,12 +55,12 @@ public class Meal extends BaseEntity implements HasId {
     @OrderBy("issuedDate desc")
     private Set<Menu> menus;
 
-    public Meal(Meal m) {
+    public Dish(Dish m) {
         this(m.id, m.description, m.price, m.restaurantId);
         this.setRestaurant(m.restaurant);
     }
 
-    public Meal(Integer id, String description, int price, int restaurantId) {
+    public Dish(Integer id, String description, int price, int restaurantId) {
         super(id);
         this.description = description;
         this.price = price;
@@ -68,7 +69,7 @@ public class Meal extends BaseEntity implements HasId {
 
     @Override
     public String toString() {
-        return "Meal{" +
+        return "Dish{" +
                 "id=" + id +
                 ", description='" + description + '\'' +
                 ", price=" + price +

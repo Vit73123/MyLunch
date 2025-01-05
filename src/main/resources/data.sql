@@ -13,7 +13,7 @@ VALUES ('Ресторан Б', 'restaurant_b@yandex.ru'), -- 1
        ('Ресторан А', 'restaurant_a@yandex.ru'), -- 2
        ('Ресторан В', 'restaurant_c@yandex.ru'); -- 3
 
-INSERT INTO MEAL (DESCRIPTION, PRICE, RESTAURANT_ID)
+INSERT INTO DISH (DESCRIPTION, PRICE, RESTAURANT_ID)
 VALUES ('Обед В-1', 310, 3), -- 1
        ('Обед Б-1', 110, 1), -- 2
        ('Обед А-2', 220, 2), -- 3
@@ -21,7 +21,8 @@ VALUES ('Обед В-1', 310, 3), -- 1
        ('Обед Б-2', 120, 1), -- 5
        ('Обед В-2', 320, 3), -- 6
        ('Обед А-3', 230, 2), -- 7
-       ('Обед Б-3', 130, 1); -- 8
+       ('Обед Б-3', 130, 1), -- 8
+       ('Обед Б-4', 140, 1); -- 9
 
 INSERT INTO MENU (ISSUED_DATE, RESTAURANT_ID)
 VALUES ('2024-12-01', 3), -- 1
@@ -32,10 +33,10 @@ VALUES ('2024-12-01', 3), -- 1
        ('2024-12-02', 3), -- 5
        ('2024-12-02', 2), -- 6
 
-       (CURRENT_DATE, 1),          -- 7
+       (CURRENT_DATE, 1), -- 7
        (CURRENT_DATE, 2); -- 8
 
-INSERT INTO MENU_ITEM (MENU_ID, MEAL_ID)
+INSERT INTO MENU_ITEM (MENU_ID, DISH_ID)
 VALUES (1, 1), -- 1    Обед В-1
        (2, 8), -- 2    Обед Б-3
        (2, 2), -- 3    Обед Б-1

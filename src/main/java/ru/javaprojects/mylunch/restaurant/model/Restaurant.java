@@ -15,7 +15,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import ru.javaprojects.mylunch.common.HasIdAndEmail;
 import ru.javaprojects.mylunch.common.model.NamedEntity;
-import ru.javaprojects.mylunch.meal.model.Meal;
+import ru.javaprojects.mylunch.dish.model.Dish;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.vote.model.Vote;
 
@@ -23,7 +23,10 @@ import java.util.List;
 
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
-@Table(name = "restaurant")
+@Table(name = "restaurant",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "email"}, name = "restaurant_unique_name_email_idx")}
+)
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -38,8 +41,8 @@ public class Restaurant extends NamedEntity implements HasIdAndEmail {
 
     @OneToMany(mappedBy = "restaurant", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonManagedReference(value = "restaurant-meals")
-    private List<Meal> meals;
+    @JsonManagedReference(value = "restaurant-dishes")
+    private List<Dish> dishes;
 
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "restaurant", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
