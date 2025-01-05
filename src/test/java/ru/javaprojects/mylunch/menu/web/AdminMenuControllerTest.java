@@ -15,6 +15,8 @@ import ru.javaprojects.mylunch.menu.model.Item;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.menu.repository.ItemRepository;
 import ru.javaprojects.mylunch.menu.repository.MenuRepository;
+import ru.javaprojects.mylunch.menu.to.ItemTo;
+import ru.javaprojects.mylunch.menu.to.MenuTo;
 import ru.javaprojects.mylunch.restaurant.RestaurantTestData;
 
 import java.net.URI;
@@ -24,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.javaprojects.mylunch.common.util.JsonUtil.writeValue;
 import static ru.javaprojects.mylunch.dish.DishTestData.DISH3_ID;
 import static ru.javaprojects.mylunch.dish.DishTestData.DISH5_ID;
 import static ru.javaprojects.mylunch.menu.MenuTestData.NOT_FOUND;
 import static ru.javaprojects.mylunch.menu.MenuTestData.*;
-import static ru.javaprojects.mylunch.menu.MenusUtil.createTo;
-import static ru.javaprojects.mylunch.menu.MenusUtil.createTos;
+import static ru.javaprojects.mylunch.menu.MenusUtil.*;
 import static ru.javaprojects.mylunch.menu.web.AdminMenuController.REST_URL;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;
 import static ru.javaprojects.mylunch.user.UserTestData.ADMIN_MAIL;
@@ -59,7 +61,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MENU_TO_MATCHER.contentJson(createTo(menu8)));
+                .andExpect(MENU_ITEMS_TO_MATCHER.contentJson(createWithItemsTo(menu8)));
     }
 
     @Test
@@ -116,7 +118,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MENU_TO_MATCHER.contentJson(createTo(menu1)));
+                .andExpect(MENU_ITEMS_TO_MATCHER.contentJson(createWithItemsTo(menu1)));
     }
 
     @Test
@@ -131,7 +133,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MENU_TO_MATCHER.contentJson(createTo(menu8)));
+                .andExpect(MENU_ITEMS_TO_MATCHER.contentJson(createWithItemsTo(menu8)));
     }
 
     // Get menus by restaurant
@@ -148,7 +150,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MENU_TO_MATCHER.contentJson(createTos(restaurant1menus)));
+                .andExpect(MENU_ITEMS_TO_MATCHER.contentJson(createWithItemsTos(restaurant1menus)));
     }
 
     @Test
@@ -197,14 +199,16 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void createWithLocationOnDate() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
-                .queryParam("date", "{date}")
-                .buildAndExpand(RESTAURANT3_ID, NEW_DAY)
+                .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
 
-        Menu newMenu = getNewMenuOnDate(NEW_DAY);
-        ResultActions action = perform(MockMvcRequestBuilders.post(uri))
+        MenuTo newTo = new MenuTo(null, NEW_DAY);
+        Menu newMenu = createNewFromTo(newTo);
+        ResultActions action = perform(MockMvcRequestBuilders.post(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
         Menu created = MENU_MATCHER.readFromJson(action);
         int newId = created.id();
@@ -222,11 +226,13 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
 
-        Menu newMenu = getNewMenuOnDate(TODAY);
+        MenuTo newTo = new MenuTo(null, TODAY);
+        Menu newMenu = createNewFromTo(newTo);
         ResultActions action = perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
         Menu created = MENU_MATCHER.readFromJson(action);
         int newId = created.id();
@@ -241,12 +247,13 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void createNotFoundRestaurant() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
-                .queryParam("date", "{date}")
-                .buildAndExpand(RestaurantTestData.NOT_FOUND, NEW_DAY)
+                .buildAndExpand(RestaurantTestData.NOT_FOUND)
                 .toUri();
 
+        MenuTo notFoundTo = new MenuTo(null, NEW_DAY);
         perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(notFoundTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -256,12 +263,13 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void createDuplicated() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
-                .queryParam("date", "{date}")
-                .buildAndExpand(RESTAURANT1_ID, DAY_1)
+                .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
 
+        MenuTo duplicatedTo = new MenuTo(null, DAY_1);
         perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(duplicatedTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -339,7 +347,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(ITEM_TO_MATCHER.contentJson(ItemsUtil.createTos(menu7Items)));
+                .andExpect(MENU_ITEM_TO_MATCHER.contentJson(ItemsUtil.createMenuItemTos(menu7Items)));
     }
 
     @Test
@@ -405,19 +413,21 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItem() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("dishId", "{dishId}")
-                .buildAndExpand(RESTAURANT2_ID, MENU8_ID, DISH3_ID)
+                .buildAndExpand(RESTAURANT2_ID, MENU8_ID)
                 .toUri();
 
-        Item newItem = getNewItem();
+        ItemTo newTo = new ItemTo(null, DISH3_ID);
+        Item newItem = ItemsUtil.createNewFromTo(newTo);
         ResultActions action = perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
         Item added = ITEM_MATCHER.readFromJson(action);
         int newId = added.id();
         newItem.setId(newId);
+        newItem.setMenuId(added.getMenuId());
         ITEM_MATCHER.assertMatch(added, newItem);
         ITEM_MATCHER.assertMatch(itemRepository.getExisted(newId), newItem);
     }
@@ -427,12 +437,13 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotFoundRestaurant() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("dishId", "{dishId}")
-                .buildAndExpand(RestaurantTestData.NOT_FOUND, MENU8_ID, DISH3_ID)
+                .buildAndExpand(RestaurantTestData.NOT_FOUND, MENU8_ID)
                 .toUri();
 
+        ItemTo newTo = new ItemTo(null, DISH3_ID);
         perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -442,42 +453,45 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotOwnRestaurant() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("dishId", "{dishId}")
-                .buildAndExpand(RESTAURANT1_ID, MENU8_ID, DISH3_ID)
+                .buildAndExpand(RESTAURANT1_ID, MENU8_ID)
                 .toUri();
 
+        ItemTo newTo = new ItemTo(null, DISH3_ID);
         perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    void addItemNotFoundMeal() throws Exception {
+    void addItemNotFoundDish() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("dishId", "{dishId}")
-                .buildAndExpand(RESTAURANT2_ID, MENU8_ID, DishTestData.NOT_FOUND)
+                .buildAndExpand(RESTAURANT2_ID, MENU8_ID)
                 .toUri();
 
+        ItemTo newTo = new ItemTo(null, DishTestData.NOT_FOUND);
         perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    void addItemNotOwnMeal() throws Exception {
+    void addItemNotOwnDish() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("dishId", "{dishId}")
-                .buildAndExpand(RESTAURANT2_ID, MENU8_ID, DISH5_ID)
+                .buildAndExpand(RESTAURANT2_ID, MENU8_ID)
                 .toUri();
 
+        ItemTo newTo = new ItemTo(null, DISH5_ID);
         perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -487,12 +501,13 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotFoundMenu() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("dishId", "{dishId}")
-                .buildAndExpand(RESTAURANT2_ID, MenuTestData.NOT_FOUND, DISH3_ID)
+                .buildAndExpand(RESTAURANT2_ID, MenuTestData.NOT_FOUND)
                 .toUri();
 
+        ItemTo newTo = new ItemTo(null, DISH5_ID);
         perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -502,12 +517,13 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
     void addItemNotOwnMenu() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "{menuId}" + "/items")
-                .queryParam("dishId", "{dishId}")
-                .buildAndExpand(RESTAURANT2_ID, MENU7_ID, DISH3_ID)
+                .buildAndExpand(RESTAURANT2_ID, MENU7_ID)
                 .toUri();
 
+        ItemTo newTo = new ItemTo(null, DISH3_ID);
         perform(MockMvcRequestBuilders.post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }

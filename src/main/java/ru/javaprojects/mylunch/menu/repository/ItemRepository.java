@@ -17,11 +17,14 @@ public interface ItemRepository extends BaseRepository<Item> {
     @Query("SELECT i FROM Item i JOIN i.dish m WHERE i.menuId=:menuId ORDER BY i.dish.description")
     List<Item> getByMenu(int menuId);
 
-    default Item prepareAndSave(int menuId, int dishId) {
+    @Transactional
+    default Item prepareAndSave(Item item, int menuId) {
+        int dishId = item.getDishId();
         if (findByMenuIdAndDishId(menuId, dishId).orElse(null) != null) {
-            throw new IllegalRequestDataException("item with dish id=" + dishId + " for menu id=" + menuId + " already exists");
+            throw new IllegalRequestDataException("item with dish id=" + item.getDish() + " for menu id=" + menuId + " already exists");
         }
-        return save(new Item(null, menuId, dishId));
+        item.setMenuId(menuId);
+        return save(item);
     }
 
     Optional<Item> findByDishId(int dishId);

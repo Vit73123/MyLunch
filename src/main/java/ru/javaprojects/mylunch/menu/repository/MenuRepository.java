@@ -50,11 +50,13 @@ public interface MenuRepository extends BaseRepository<Menu> {
     }
 
     @Transactional
-    default Menu prepareAndSave(LocalDate date, int restaurantId) {
+    default Menu prepareAndSave(Menu menu, int restaurantId) {
+        LocalDate date = menu.getIssuedDate();
         if (findByDateAndRestaurantId(date, restaurantId).orElse(null) != null) {
             throw new IllegalRequestDataException("Menu on date=" + date + " for restaurant id=" + restaurantId + " already exists");
         }
-        return save(new Menu(null, date, restaurantId));
+        menu.setRestaurantId(restaurantId);
+        return save(menu);
     }
 
     @Transactional

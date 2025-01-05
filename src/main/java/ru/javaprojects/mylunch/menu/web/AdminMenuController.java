@@ -1,5 +1,6 @@
 package ru.javaprojects.mylunch.menu.web;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -15,16 +16,17 @@ import ru.javaprojects.mylunch.menu.model.Item;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.menu.repository.ItemRepository;
 import ru.javaprojects.mylunch.menu.to.ItemTo;
+import ru.javaprojects.mylunch.menu.to.MenuItemTo;
+import ru.javaprojects.mylunch.menu.to.MenuItemsTo;
 import ru.javaprojects.mylunch.menu.to.MenuTo;
 import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
-import static ru.javaprojects.mylunch.menu.MenusUtil.createTo;
-import static ru.javaprojects.mylunch.menu.MenusUtil.createTos;
+import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkNew;
+import static ru.javaprojects.mylunch.menu.MenusUtil.*;
 
 @RestController
 @RequestMapping(value = AdminMenuController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -42,39 +44,38 @@ public class AdminMenuController extends AbstractMenuController {
 
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
-    public MenuTo get(@PathVariable int id, @PathVariable int restaurantId) {
+    public MenuItemsTo get(@PathVariable int id, @PathVariable int restaurantId) {
         log.info("get with id={} of restaurant id={}", id, restaurantId);
-        return createTo(menuRepository.getExisted(id, restaurantId));
+        return createWithItemsTo(menuRepository.getExisted(id, restaurantId));
     }
 
     @GetMapping("/on-today")
-    public MenuTo getOnToday(@PathVariable int restaurantId) {
+    public MenuItemsTo getOnToday(@PathVariable int restaurantId) {
         return super.getOnDate(ClockHolder.getDate(), restaurantId);
     }
 
     @Override
     @GetMapping("/on-date")
-    public MenuTo getOnDate(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                            @PathVariable int restaurantId) {
+    public MenuItemsTo getOnDate(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                 @PathVariable int restaurantId) {
         return super.getOnDate(date, restaurantId);
     }
 
     @GetMapping
     @Transactional(readOnly = true)
-    public List<MenuTo> getByRestaurant(@PathVariable int restaurantId) {
+    public List<MenuItemsTo> getByRestaurant(@PathVariable int restaurantId) {
         log.info("getByRestaurant id={}", restaurantId);
         restaurantRepository.checkExists(restaurantId);
-        return createTos(menuRepository.getByRestaurant(restaurantId));
+        return createWithItemsTos(menuRepository.getByRestaurant(restaurantId));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<Menu> createWithLocation(
-            @RequestParam @Nullable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @PathVariable int restaurantId) {
-        log.info("create on date {} of restaurant id={}", date, restaurantId);
+    public ResponseEntity<Menu> createWithLocation(@Valid @RequestBody MenuTo menuTo, @PathVariable int restaurantId) {
+        log.info("create {} for restaurant id={}", menuTo, restaurantId);
+        checkNew(menuTo);
         restaurantRepository.checkExists(restaurantId);
-        Menu created = menuRepository.prepareAndSave(date == null ? ClockHolder.getDate() : date, restaurantId);
+        Menu created = menuRepository.prepareAndSave(createNewFromTo(menuTo), restaurantId);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL)
                 .buildAndExpand(restaurantId)
@@ -91,19 +92,21 @@ public class AdminMenuController extends AbstractMenuController {
 
     @GetMapping("/{menuId}/items")
     @Transactional(readOnly = true)
-    public List<ItemTo> getItems(@PathVariable int menuId, @PathVariable int restaurantId) {
+    public List<MenuItemTo> getItems(@PathVariable int menuId, @PathVariable int restaurantId) {
         log.info("get items for menu id={} restaurant id={}", menuId, restaurantId);
         menuRepository.checkExistsByRestaurant(menuId, restaurantId);
-        return ItemsUtil.createTos(itemRepository.getByMenu(menuId));
+        return ItemsUtil.createMenuItemTos(itemRepository.getByMenu(menuId));
     }
 
     @PostMapping(value = "/{menuId}/items")
     @Transactional
-    public ResponseEntity<Item> addItem(@RequestParam int dishId, @PathVariable int menuId, @PathVariable int restaurantId) {
-        log.info("add item from dish id={} for menu id={} restaurant id={}", dishId, menuId, restaurantId);
+    public ResponseEntity<Item> addItem(@Valid @RequestBody ItemTo itemTo,
+                                        @PathVariable int menuId,
+                                        @PathVariable int restaurantId) {
+        log.info("add {} for menu id={} restaurant id={}", itemTo, menuId, restaurantId);
         menuRepository.checkExistsByRestaurant(menuId, restaurantId);
-        dishRepository.checkExistsByRestaurant(dishId, restaurantId);
-        Item created = itemRepository.prepareAndSave(menuId, dishId);
+        dishRepository.checkExistsByRestaurant(itemTo.getDishId(), restaurantId);
+        Item created = itemRepository.prepareAndSave(ItemsUtil.createNewFromTo(itemTo), menuId);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL + "/{menuId}/items/{itemsId}")
                 .buildAndExpand(restaurantId, menuId, created.id())

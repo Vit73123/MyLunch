@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import ru.javaprojects.mylunch.AbstractRepositoryTest;
 import ru.javaprojects.mylunch.common.error.NotFoundException;
+import ru.javaprojects.mylunch.menu.MenuTestData;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.restaurant.RestaurantTestData;
 
@@ -47,9 +48,9 @@ class MenuRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void save() {
-        Menu created = repository.save(getNewMenuOnDate(TODAY));
+        Menu created = repository.save(MenuTestData.getNewOnToday());
         int newId = created.id();
-        Menu newItem = getNewMenuOnDate(TODAY);
+        Menu newItem = MenuTestData.getNewOnToday();
         newItem.setId(newId);
         MENU_MATCHER.assertMatch(created, newItem);
         MENU_MATCHER.assertMatch(repository.getExisted(newId, RESTAURANT3_ID), newItem);

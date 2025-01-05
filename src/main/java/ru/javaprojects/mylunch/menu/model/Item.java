@@ -44,6 +44,11 @@ public class Item extends BaseEntity {
     @Range(min = 1)
     private int dishId;
 
+    public Item(Integer id, int dishId) {
+        super(id);
+        this.dishId = dishId;
+    }
+
     public Item(Integer id, int menuId, int dishId) {
         super(id);
         this.menuId = menuId;

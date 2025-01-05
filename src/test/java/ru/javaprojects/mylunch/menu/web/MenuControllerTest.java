@@ -12,9 +12,9 @@ import java.net.URI;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.javaprojects.mylunch.menu.MenuTestData.MENU_TO_MATCHER;
+import static ru.javaprojects.mylunch.menu.MenuTestData.MENU_ITEMS_TO_MATCHER;
 import static ru.javaprojects.mylunch.menu.MenuTestData.menu8;
-import static ru.javaprojects.mylunch.menu.MenusUtil.createTo;
+import static ru.javaprojects.mylunch.menu.MenusUtil.createWithItemsTo;
 import static ru.javaprojects.mylunch.menu.web.MenuController.REST_URL;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.RESTAURANT2_ID;
 import static ru.javaprojects.mylunch.user.UserTestData.USER_MAIL;
@@ -33,7 +33,7 @@ public class MenuControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(MENU_TO_MATCHER.contentJson(createTo(menu8)));
+                .andExpect(MENU_ITEMS_TO_MATCHER.contentJson(createWithItemsTo(menu8)));
     }
 }
 

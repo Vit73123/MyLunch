@@ -11,6 +11,7 @@ import ru.javaprojects.mylunch.AbstractControllerTest;
 import ru.javaprojects.mylunch.dish.DishesUtil;
 import ru.javaprojects.mylunch.dish.model.Dish;
 import ru.javaprojects.mylunch.dish.repository.DishRepository;
+import ru.javaprojects.mylunch.dish.to.DishTo;
 import ru.javaprojects.mylunch.restaurant.RestaurantTestData;
 
 import java.net.URI;
@@ -143,10 +144,11 @@ public class AdminDishControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
 
-        Dish newDish = getNew();
+        DishTo newTo = getNewTo();
+        Dish newDish = DishesUtil.createNewFromTo(newTo);
         ResultActions action = perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(DishesUtil.createTo(newDish))))
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
@@ -166,10 +168,10 @@ public class AdminDishControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RestaurantTestData.NOT_FOUND)
                 .toUri();
 
-        Dish newDish = getNew();
+        DishTo newTo = getNewTo();
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(DishesUtil.createTo(newDish))))
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -182,18 +184,17 @@ public class AdminDishControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
 
-        Dish invalidNew;
-        invalidNew = new Dish(null, "", 100, 0);
+        DishTo newTo = new DishTo(null, "", 100);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(DishesUtil.createTo(invalidNew))))
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
 
-        invalidNew = new Dish(null, "Invalid dish", 0, 0);
+        newTo = new DishTo(null, "Invalid dish", 0);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(DishesUtil.createTo(invalidNew))))
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -201,7 +202,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void update() throws Exception {
-        Dish updated = getUpdated();
+        DishTo updatedTo = new DishTo(NOT_USED, "Изменённый обед", 141);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + NOT_USED)
@@ -210,7 +211,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(updated)))
+                .content(writeValue(updatedTo)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
@@ -220,7 +221,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateNotFound() throws Exception {
-        Dish notFound = new Dish(NOT_FOUND, "Несуществующий обед", 100, RESTAURANT1_ID);
+        DishTo notFoundTo = new DishTo(NOT_FOUND, "Несуществующий обед", 100);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + NOT_FOUND)
@@ -229,7 +230,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(notFound)))
+                .content(writeValue(notFoundTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -237,7 +238,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateNotFoundRestaurant() throws Exception {
-        Dish notFound = new Dish(DISH1_ID, "Обед несуществующего ресторана", 100, RestaurantTestData.NOT_FOUND);
+        DishTo notFoundTo = new DishTo(DISH1_ID, "Обед несуществующего ресторана", 100);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + DISH1_ID)
@@ -246,7 +247,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(notFound)))
+                .content(writeValue(notFoundTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -254,7 +255,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateNotOwnRestaurant() throws Exception {
-        Dish notFound = new Dish(DISH1_ID, "Обед чужого ресторана", 100, RESTAURANT1_ID);
+        DishTo notFoundTo = new DishTo(DISH1_ID, "Обед чужого ресторана", 100);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + DISH1_ID)
@@ -263,7 +264,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(notFound)))
+                .content(writeValue(notFoundTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -271,7 +272,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateUsed() throws Exception {
-        Dish notFound = new Dish(DISH1_ID, "Обед, используемый в меню", 100, RESTAURANT3_ID);
+        DishTo usedTo = new DishTo(DISH1_ID, "Обед, используемый в меню", 100);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + DISH1_ID)
@@ -280,7 +281,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(notFound)))
+                .content(writeValue(usedTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -288,26 +289,22 @@ public class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateInvalid() throws Exception {
-        Dish invalid;
-
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + NOT_USED)
                 .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
 
-        invalid = new Dish(notUsed);
-        invalid.setDescription("");
+        DishTo invalidTo = new DishTo(NOT_USED, "", 100);
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(DishesUtil.createTo(invalid))))
+                .content(writeValue(invalidTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
 
-        invalid = new Dish(notUsed);
-        invalid.setPrice(0);
+        invalidTo = new DishTo(NOT_USED, "Invalid dish", 0);
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(DishesUtil.createTo(invalid))))
+                .content(writeValue(invalidTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -315,26 +312,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateHtmlUnsafe() throws Exception {
-        Dish updated = new Dish(notUsed);
-        updated.setDescription("<script>alert(123)</script>");
-
-        URI uri = UriComponentsBuilder
-                .fromUriString(REST_URL_SLASH + DISH1_ID)
-                .buildAndExpand(RESTAURANT1_ID)
-                .toUri();
-
-        perform(MockMvcRequestBuilders.put(uri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(DishesUtil.createTo(updated))))
-                .andDo(print())
-                .andExpect(status().isUnprocessableEntity());
-    }
-
-    @Test
-    @WithUserDetails(value = ADMIN_MAIL)
-    void updateDuplicated() throws Exception {
-        Dish updated = new Dish(notUsed);
-        updated.setDescription(DISH8_DESCRIPTION);
+        DishTo unsafeTo = new DishTo(NOT_USED, "<script>alert(123)</script>", 101);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + NOT_USED)
@@ -343,7 +321,24 @@ public class AdminDishControllerTest extends AbstractControllerTest {
 
         perform(MockMvcRequestBuilders.put(uri)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(DishesUtil.createTo(updated))))
+                .content(writeValue(unsafeTo)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void updateDuplicated() throws Exception {
+        DishTo duplicatedTo = new DishTo(NOT_USED, DISH8_DESCRIPTION, 101);
+
+        URI uri = UriComponentsBuilder
+                .fromUriString(REST_URL_SLASH + NOT_USED)
+                .buildAndExpand(RESTAURANT1_ID)
+                .toUri();
+
+        perform(MockMvcRequestBuilders.put(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(duplicatedTo)))
                 .andDo(print())
                 .andExpect(status().isConflict());
     }
