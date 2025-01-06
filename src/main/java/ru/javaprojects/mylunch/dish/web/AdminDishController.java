@@ -42,7 +42,7 @@ public class AdminDishController {
     @GetMapping("/{id}")
     public DishTo get(@PathVariable int id, @PathVariable int restaurantId) {
         log.info("get with id={} of restaurant id={}", id, restaurantId);
-        return createTo(dishRepository.getExistedByRestaurantId(id, restaurantId));
+        return createTo(dishRepository.getExistedByRestaurant(id, restaurantId));
     }
 
     @GetMapping
@@ -73,7 +73,7 @@ public class AdminDishController {
     public void update(@Valid @RequestBody DishTo dishTo, @PathVariable int id, @PathVariable int restaurantId) {
         log.info("update {} with id={} of restaurant id={}", dishTo, id, restaurantId);
         assureIdConsistent(dishTo, id);
-        Dish dish = dishRepository.getExistedByRestaurantId(id, restaurantId);
+        Dish dish = dishRepository.getExistedByRestaurant(id, restaurantId);
         itemRepository.checkDishNotExists(id);
         dishRepository.prepareAndSave(updateFromTo(dish, dishTo), restaurantId);
     }
@@ -84,6 +84,6 @@ public class AdminDishController {
     public void delete(@PathVariable int id, @PathVariable int restaurantId) {
         log.info("delete with id={} of restaurant id={}", id, restaurantId);
         itemRepository.checkDishNotExists(id);
-        dishRepository.deleteExistedByRestaurantId(id, restaurantId);
+        dishRepository.deleteExistedByRestaurant(id, restaurantId);
     }
 }

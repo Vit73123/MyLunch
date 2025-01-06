@@ -16,6 +16,8 @@ import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.menu.repository.ItemRepository;
 import ru.javaprojects.mylunch.menu.repository.MenuRepository;
 import ru.javaprojects.mylunch.menu.to.ItemTo;
+import ru.javaprojects.mylunch.menu.to.MenuItemTo;
+import ru.javaprojects.mylunch.menu.to.MenuItemsTo;
 import ru.javaprojects.mylunch.menu.to.MenuTo;
 import ru.javaprojects.mylunch.restaurant.RestaurantTestData;
 
@@ -27,8 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javaprojects.mylunch.common.util.JsonUtil.writeValue;
-import static ru.javaprojects.mylunch.dish.DishTestData.DISH3_ID;
-import static ru.javaprojects.mylunch.dish.DishTestData.DISH5_ID;
+import static ru.javaprojects.mylunch.dish.DishTestData.*;
+import static ru.javaprojects.mylunch.menu.ItemsUtil.createMenuItemTo;
 import static ru.javaprojects.mylunch.menu.MenuTestData.NOT_FOUND;
 import static ru.javaprojects.mylunch.menu.MenuTestData.*;
 import static ru.javaprojects.mylunch.menu.MenusUtil.*;
@@ -210,11 +212,11 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
-        Menu created = MENU_MATCHER.readFromJson(action);
+        MenuItemsTo created = MENU_ITEMS_TO_MATCHER.readFromJson(action);
         int newId = created.id();
         newMenu.setId(newId);
         newMenu.setRestaurantId(created.getRestaurantId());
-        MENU_MATCHER.assertMatch(created, newMenu);
+        MENU_ITEMS_TO_MATCHER.assertMatch(created, createWithItemsTo(newMenu));
         MENU_MATCHER.assertMatch(menuRepository.getExisted(newId, RESTAURANT3_ID), newMenu);
     }
 
@@ -234,11 +236,11 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
-        Menu created = MENU_MATCHER.readFromJson(action);
+        MenuItemsTo created = MENU_ITEMS_TO_MATCHER.readFromJson(action);
         int newId = created.id();
         newMenu.setId(newId);
         newMenu.setRestaurantId(created.getRestaurantId());
-        MENU_MATCHER.assertMatch(created, newMenu);
+        MENU_ITEMS_TO_MATCHER.assertMatch(created, createWithItemsTo(newMenu));
         MENU_MATCHER.assertMatch(menuRepository.getExisted(newId, RESTAURANT3_ID), newMenu);
     }
 
@@ -424,11 +426,12 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
-        Item added = ITEM_MATCHER.readFromJson(action);
-        int newId = added.id();
+        MenuItemTo addedTo = MENU_ITEM_TO_MATCHER.readFromJson(action);
+        int newId = addedTo.id();
         newItem.setId(newId);
-        newItem.setMenuId(added.getMenuId());
-        ITEM_MATCHER.assertMatch(added, newItem);
+        newItem.setMenuId(MENU8_ID);
+        newItem.setDish(dish3);
+        MENU_ITEM_TO_MATCHER.assertMatch(addedTo, createMenuItemTo(newItem));
         ITEM_MATCHER.assertMatch(itemRepository.getExisted(newId), newItem);
     }
 

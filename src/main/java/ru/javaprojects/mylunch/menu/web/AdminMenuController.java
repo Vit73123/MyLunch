@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.javaprojects.mylunch.common.util.ClockHolder;
+import ru.javaprojects.mylunch.dish.model.Dish;
 import ru.javaprojects.mylunch.dish.repository.DishRepository;
 import ru.javaprojects.mylunch.menu.ItemsUtil;
 import ru.javaprojects.mylunch.menu.model.Item;
@@ -71,7 +72,7 @@ public class AdminMenuController extends AbstractMenuController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<Menu> createWithLocation(@Valid @RequestBody MenuTo menuTo, @PathVariable int restaurantId) {
+    public ResponseEntity<MenuItemsTo> createWithLocation(@Valid @RequestBody MenuTo menuTo, @PathVariable int restaurantId) {
         log.info("create {} for restaurant id={}", menuTo, restaurantId);
         checkNew(menuTo);
         restaurantRepository.checkExists(restaurantId);
@@ -80,7 +81,7 @@ public class AdminMenuController extends AbstractMenuController {
                 .path(REST_URL)
                 .buildAndExpand(restaurantId)
                 .toUri();
-        return ResponseEntity.created(uriOfNewResource).body(created);
+        return ResponseEntity.created(uriOfNewResource).body(createWithItemsTo(created));
     }
 
     @DeleteMapping(value = "/{id}")
@@ -100,18 +101,19 @@ public class AdminMenuController extends AbstractMenuController {
 
     @PostMapping(value = "/{menuId}/items")
     @Transactional
-    public ResponseEntity<Item> addItem(@Valid @RequestBody ItemTo itemTo,
+    public ResponseEntity<MenuItemTo> addItem(@Valid @RequestBody ItemTo itemTo,
                                         @PathVariable int menuId,
                                         @PathVariable int restaurantId) {
         log.info("add {} for menu id={} restaurant id={}", itemTo, menuId, restaurantId);
         menuRepository.checkExistsByRestaurant(menuId, restaurantId);
-        dishRepository.checkExistsByRestaurant(itemTo.getDishId(), restaurantId);
+        Dish dish = dishRepository.getExistedByRestaurant(itemTo.getDishId(), restaurantId);
         Item created = itemRepository.prepareAndSave(ItemsUtil.createNewFromTo(itemTo), menuId);
+        created.setDish(dish);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL + "/{menuId}/items/{itemsId}")
                 .buildAndExpand(restaurantId, menuId, created.id())
                 .toUri();
-        return ResponseEntity.created(uriOfNewResource).body(created);
+        return ResponseEntity.created(uriOfNewResource).body(ItemsUtil.createMenuItemTo(created));
     }
 
     @DeleteMapping(value = "/{menuId}/items/{itemId}")

@@ -16,7 +16,7 @@ public interface DishRepository extends BaseRepository<Dish> {
     @Query("SELECT d FROM Dish d WHERE d.id=:id AND d.restaurantId=:restaurantId")
     Optional<Dish> findByIdAndRestaurantId(int id, int restaurantId);
 
-    default Dish getExistedByRestaurantId(int id, int restaurantId) {
+    default Dish getExistedByRestaurant(int id, int restaurantId) {
         return this.findByIdAndRestaurantId(id, restaurantId).orElseThrow(
                 () -> new NotFoundException("Dish with id=" + id + " restaurant_id=" + restaurantId + " not found"));
     }
@@ -41,14 +41,9 @@ public interface DishRepository extends BaseRepository<Dish> {
 
     //  https://stackoverflow.com/a/60695301/548473 (existed delete code 204, not existed: 404)
     @SuppressWarnings("all") // transaction invoked
-    default void deleteExistedByRestaurantId(int id, int restaurantId) {
+    default void deleteExistedByRestaurant(int id, int restaurantId) {
         if (deleteByIdAndRestaurantId(id, restaurantId) == 0) {
             throw new NotFoundException("Dish with id=" + id + " restaurant_id=" + restaurantId + " not found");
         }
-    }
-
-    default void checkExistsByRestaurant(int id, int restaurantId) {
-        this.findByIdAndRestaurantId(id, restaurantId).orElseThrow(
-                () -> new NotFoundException("Dish with id=" + id + " of restaurant id=" + restaurantId + " not found"));
     }
 }

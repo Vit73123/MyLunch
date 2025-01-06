@@ -157,7 +157,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
         newDish.setId(newId);
         newDish.setRestaurantId(created.getRestaurantId());
         DISH_MATCHER.assertMatch(created, newDish);
-        DISH_MATCHER.assertMatch(repository.getExistedByRestaurantId(newId, RESTAURANT3_ID), newDish);
+        DISH_MATCHER.assertMatch(repository.getExistedByRestaurant(newId, RESTAURANT3_ID), newDish);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        DISH_MATCHER.assertMatch(repository.getExistedByRestaurantId(NOT_USED, RESTAURANT1_ID), getUpdated());
+        DISH_MATCHER.assertMatch(repository.getExistedByRestaurant(NOT_USED, RESTAURANT1_ID), getUpdated());
     }
 
     @Test

@@ -20,26 +20,26 @@ class DishRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void get() {
-        Dish actual = repository.getExistedByRestaurantId(DISH1_ID, RESTAURANT3_ID);
+        Dish actual = repository.getExistedByRestaurant(DISH1_ID, RESTAURANT3_ID);
         DISH_MATCHER.assertMatch(actual, dish1);
     }
 
     @Test
     void getNotFound() {
         assertThrows(NotFoundException.class, () ->
-                repository.getExistedByRestaurantId(NOT_FOUND, RESTAURANT3_ID));
+                repository.getExistedByRestaurant(NOT_FOUND, RESTAURANT3_ID));
     }
 
     @Test
     void getNotOwn() {
         assertThrows(NotFoundException.class, () ->
-                repository.getExistedByRestaurantId(DISH1_ID, RESTAURANT1_ID));
+                repository.getExistedByRestaurant(DISH1_ID, RESTAURANT1_ID));
     }
 
     @Test
     void getOwnNotFoundRestaurant() {
         assertThrows(NotFoundException.class, () ->
-                repository.getExistedByRestaurantId(DISH1_ID, RestaurantTestData.NOT_FOUND));
+                repository.getExistedByRestaurant(DISH1_ID, RestaurantTestData.NOT_FOUND));
     }
 
     @Test
@@ -50,7 +50,7 @@ class DishRepositoryTest extends AbstractRepositoryTest {
         newItem.setId(newId);
         newItem.setRestaurantId(created.getRestaurantId());
         DISH_MATCHER.assertMatch(created, newItem);
-        DISH_MATCHER.assertMatch(repository.getExistedByRestaurantId(newId, RESTAURANT1_ID), newItem);
+        DISH_MATCHER.assertMatch(repository.getExistedByRestaurant(newId, RESTAURANT1_ID), newItem);
     }
 
     @Test
@@ -69,7 +69,7 @@ class DishRepositoryTest extends AbstractRepositoryTest {
     void update() {
         Dish updated = getUpdated();
         repository.prepareAndSave(updated, RESTAURANT1_ID);
-        DISH_MATCHER.assertMatch(repository.getExistedByRestaurantId(NOT_USED, RESTAURANT1_ID), getUpdated());
+        DISH_MATCHER.assertMatch(repository.getExistedByRestaurant(NOT_USED, RESTAURANT1_ID), getUpdated());
     }
 
     @Test
@@ -86,20 +86,20 @@ class DishRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void delete() {
-        repository.deleteExistedByRestaurantId(DISH1_ID, RESTAURANT3_ID);
+        repository.deleteExistedByRestaurant(DISH1_ID, RESTAURANT3_ID);
         assertFalse(repository.findById(DISH1_ID).isPresent());
     }
 
     @Test
     void deleteNotFound() {
         assertThrows(NotFoundException.class, () ->
-                repository.deleteExistedByRestaurantId(NOT_FOUND, RESTAURANT3_ID));
+                repository.deleteExistedByRestaurant(NOT_FOUND, RESTAURANT3_ID));
     }
 
     @Test
     void deleteNotOwn() {
         assertThrows(NotFoundException.class, () ->
-                repository.deleteExistedByRestaurantId(DISH1_ID, RESTAURANT1_ID));
+                repository.deleteExistedByRestaurant(DISH1_ID, RESTAURANT1_ID));
     }
 
     @Test
