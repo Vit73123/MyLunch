@@ -12,6 +12,7 @@ import ru.javaprojects.mylunch.menu.MenuTestData;
 import ru.javaprojects.mylunch.restaurant.RestaurantsUtil;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
+import ru.javaprojects.mylunch.restaurant.to.RestaurantTo;
 
 import java.net.URI;
 
@@ -24,6 +25,7 @@ import static ru.javaprojects.mylunch.common.util.JsonUtil.writeValue;
 import static ru.javaprojects.mylunch.menu.MenuTestData.DAY_1;
 import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.*;
 import static ru.javaprojects.mylunch.restaurant.RestaurantsUtil.createTo;
+import static ru.javaprojects.mylunch.restaurant.RestaurantsUtil.createTos;
 import static ru.javaprojects.mylunch.restaurant.web.AdminRestaurantController.REST_URL;
 import static ru.javaprojects.mylunch.restaurant.web.UniqueRestaurantMailValidator.EXCEPTION_DUPLICATE_EMAIL;
 import static ru.javaprojects.mylunch.user.UserTestData.ADMIN_MAIL;
@@ -43,7 +45,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANT_MATCHER.contentJson(restaurant1));
+                .andExpect(RESTAURANT_TO_MATCHER.contentJson(createTo(restaurant1)));
     }
 
     @Test
@@ -60,7 +62,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.get(REST_URL_SLASH + "by-email?email=" + restaurant1.getEmail()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANT_MATCHER.contentJson(restaurant1));
+                .andExpect(RESTAURANT_TO_MATCHER.contentJson(createTo(restaurant1)));
     }
 
     @Test
@@ -70,7 +72,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANT_MATCHER.contentJson(restaurants));
+                .andExpect(RESTAURANT_TO_MATCHER.contentJson(createTos(restaurants)));
     }
 
     @Test
@@ -102,7 +104,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANT_DAILY_MENU_TO_MATCHER.contentJson(
+                .andExpect(RESTAURANT_MENU_TO_MATCHER.contentJson(
                         RestaurantsUtil.createWithDailyMenuTos(MenuTestData.day1Menus)));
     }
 
@@ -113,7 +115,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANT_DAILY_MENU_TO_MATCHER.contentJson(
+                .andExpect(RESTAURANT_MENU_TO_MATCHER.contentJson(
                         RestaurantsUtil.createWithDailyMenuTos(MenuTestData.todayMenus)));
     }
 
@@ -134,29 +136,30 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void createWithLocation() throws Exception {
-        Restaurant newRestaurant = getNew();
+        RestaurantTo newTo = new RestaurantTo(null, "Новый ресторан", "new_restaurant@yandex.ru");
+        Restaurant newRestaurant = RestaurantsUtil.createNewFromTo(newTo);
 
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(createTo(newRestaurant))))
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Restaurant created = RESTAURANT_MATCHER.readFromJson(action);
+        RestaurantTo created = RESTAURANT_TO_MATCHER.readFromJson(action);
         int newId = created.id();
         newRestaurant.setId(newId);
-        RESTAURANT_MATCHER.assertMatch(created, newRestaurant);
+        RESTAURANT_TO_MATCHER.assertMatch(created, createTo(newRestaurant));
         RESTAURANT_MATCHER.assertMatch(repository.getExisted(newId), newRestaurant);
     }
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void createInvalid() throws Exception {
-        Restaurant invalid = new Restaurant(null, null, "updated_restaurant@yandex.ru");
+        RestaurantTo invalidTo = new RestaurantTo(null, "", "invalid_restaurant@yandex.ru");
 
         perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(createTo(invalid))))
+                .content(writeValue(invalidTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -164,11 +167,11 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void update() throws Exception {
-        Restaurant updated = getUpdated();
+        RestaurantTo updatedTo = new RestaurantTo(RESTAURANT1_ID, "Изменённый ресторан", "updated_restaurant@yandex.ru");
 
         perform(MockMvcRequestBuilders.put(REST_URL_SLASH + RESTAURANT1_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(createTo(updated))))
+                .content(writeValue(updatedTo)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
@@ -203,12 +206,11 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateHtmlUnsafe() throws Exception {
-        Restaurant updated = new Restaurant(restaurant1);
-        updated.setName("<script>alert(123)</script>");
+        RestaurantTo unsafeTo = new RestaurantTo(RESTAURANT1_ID, "<script>alert(123)</script>", "restaurant_b@yandex.ru");
 
         perform(MockMvcRequestBuilders.put(REST_URL_SLASH + RESTAURANT1_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(createTo(updated))))
+                .content(writeValue(unsafeTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -216,16 +218,14 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
     void updateDuplicated() throws Exception {
-        Restaurant updated = new Restaurant(restaurant2);
-        updated.setEmail(RESTAURANT1_EMAIL);
+        RestaurantTo duplicatedTo = new RestaurantTo(RESTAURANT2_ID, "Ресторан А", RESTAURANT1_EMAIL);
 
         perform(MockMvcRequestBuilders.put(REST_URL_SLASH + RESTAURANT2_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(writeValue(createTo(updated))))
+                .content(writeValue(duplicatedTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string(containsString(EXCEPTION_DUPLICATE_EMAIL)));
-        System.out.println();
     }
 
     @Test

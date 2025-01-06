@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.javaprojects.mylunch.common.util.ClockHolder;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
-import ru.javaprojects.mylunch.restaurant.to.RestaurantDailyMenuTo;
+import ru.javaprojects.mylunch.restaurant.to.RestaurantMenuTo;
 import ru.javaprojects.mylunch.restaurant.to.RestaurantTo;
 
 import java.net.URI;
@@ -28,21 +28,21 @@ public class AdminRestaurantController extends AbstractRestaurantController {
     static final String REST_URL = "/api/admin/restaurants";
 
     @GetMapping("/{id}")
-    public Restaurant get(@PathVariable int id) {
+    public RestaurantTo get(@PathVariable int id) {
         log.info("get with id={}", id);
-        return restaurantRepository.getExisted(id);
+        return createTo(restaurantRepository.getExisted(id));
     }
 
     @GetMapping("/by-email")
-    public Restaurant getByEmail(@RequestParam("email") String email) {
+    public RestaurantTo getByEmail(@RequestParam("email") String email) {
         log.info("getByEmail {}", email);
-        return restaurantRepository.getExistedByEmail(email);
+        return createTo(restaurantRepository.getExistedByEmail(email));
     }
 
     @GetMapping
-    public List<Restaurant> getAll() {
+    public List<RestaurantTo> getAll() {
         log.info("getAll");
-        return restaurantRepository.findAll(Sort.by(Sort.Direction.ASC, "name", "email"));
+        return createTos(restaurantRepository.findAll(Sort.by(Sort.Direction.ASC, "name", "email")));
     }
 
     @GetMapping("/on-today")
@@ -56,12 +56,12 @@ public class AdminRestaurantController extends AbstractRestaurantController {
     }
 
     @GetMapping("/menus/on-date")
-    public List<RestaurantDailyMenuTo> getWithMenusOnToday(LocalDate date) {
+    public List<RestaurantMenuTo> getWithMenusOnToday(LocalDate date) {
         return super.getWithMenusOnDate(date);
     }
 
     @GetMapping("/menus/on-today")
-    public List<RestaurantDailyMenuTo> getWithMenusOnToday() {
+    public List<RestaurantMenuTo> getWithMenusOnToday() {
         return super.getWithMenusOnDate(ClockHolder.getDate());
     }
 

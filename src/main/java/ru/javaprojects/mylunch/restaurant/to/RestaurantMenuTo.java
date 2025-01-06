@@ -17,7 +17,7 @@ import java.util.List;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class RestaurantDailyMenuTo extends NamedTo implements HasIdAndEmail {
+public class RestaurantMenuTo extends NamedTo implements HasIdAndEmail {
 
     @Email
     @NotBlank
@@ -25,23 +25,16 @@ public class RestaurantDailyMenuTo extends NamedTo implements HasIdAndEmail {
     @NoHtml  // https://stackoverflow.com/questions/17480809
     String email;
 
-    Menu menu;
+    Integer menuId;
 
-    public RestaurantDailyMenuTo(Integer id, String name, String email, Integer menuId, Collection<Dish> items) {
+    List<DishTo> items;
+
+    public RestaurantMenuTo(Integer id, String name, String email, Integer menuId, Collection<Dish> items) {
         super(id, name);
         this.email = email;
-        this.menu = new Menu(menuId, items != null ? DishesUtil.createTos(items) : null);
-    }
-
-    private static class Menu {
-        Integer id;
-
-        List<DishTo> items;
-
-        public Menu(Integer id, List<DishTo> items) {
-            this.id = id;
-            this.items = items;
-        }
+        this.menuId = menuId;
+        this.items = items != null ? DishesUtil.createTos(items) : null;
+        ;
     }
 
     @Override
@@ -50,7 +43,8 @@ public class RestaurantDailyMenuTo extends NamedTo implements HasIdAndEmail {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email=" + email +
-                ", menu=" + menu +
+                ", menuId=" + menuId +
+                ", items=" + items +
                 '}';
     }
 }

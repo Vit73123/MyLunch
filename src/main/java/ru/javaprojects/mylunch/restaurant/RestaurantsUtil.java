@@ -3,7 +3,7 @@ package ru.javaprojects.mylunch.restaurant;
 import lombok.experimental.UtilityClass;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.restaurant.model.Restaurant;
-import ru.javaprojects.mylunch.restaurant.to.RestaurantDailyMenuTo;
+import ru.javaprojects.mylunch.restaurant.to.RestaurantMenuTo;
 import ru.javaprojects.mylunch.restaurant.to.RestaurantTo;
 
 import java.util.Collection;
@@ -32,8 +32,8 @@ public class RestaurantsUtil {
                 .toList();
     }
 
-    public static RestaurantDailyMenuTo createWithDailyMenuTo(Menu menu) {
-        return new RestaurantDailyMenuTo(
+    public static RestaurantMenuTo createWithDailyMenuTo(Menu menu) {
+        return new RestaurantMenuTo(
                 menu.getRestaurantId(),
                 menu.getRestaurant().getName(),
                 menu.getRestaurant().getEmail(),
@@ -41,7 +41,7 @@ public class RestaurantsUtil {
                 menu.getItems());
     }
 
-    public static List<RestaurantDailyMenuTo> createWithDailyMenuTos(Collection<Menu> menus) {
+    public static List<RestaurantMenuTo> createWithDailyMenuTos(Collection<Menu> menus) {
         return menus.stream()
                 .map(RestaurantsUtil::createWithDailyMenuTo)
                 .toList();

@@ -36,7 +36,7 @@ public class RestaurantControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANT_DAILY_MENU_TO_MATCHER.contentJson(
+                .andExpect(RESTAURANT_MENU_TO_MATCHER.contentJson(
                         RestaurantsUtil.createWithDailyMenuTos(MenuTestData.todayMenus)));
     }
 }

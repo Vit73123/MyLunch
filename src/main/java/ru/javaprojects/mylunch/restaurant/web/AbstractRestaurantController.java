@@ -7,7 +7,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import ru.javaprojects.mylunch.menu.repository.MenuRepository;
 import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
-import ru.javaprojects.mylunch.restaurant.to.RestaurantDailyMenuTo;
+import ru.javaprojects.mylunch.restaurant.to.RestaurantMenuTo;
 import ru.javaprojects.mylunch.restaurant.to.RestaurantTo;
 
 import java.time.LocalDate;
@@ -40,7 +40,7 @@ public abstract class AbstractRestaurantController {
     }
 
     @Transactional
-    public List<RestaurantDailyMenuTo> getWithMenusOnDate(LocalDate date) {
+    public List<RestaurantMenuTo> getWithMenusOnDate(LocalDate date) {
         log.info("getWithMenusOnDate {}", date);
         return createWithDailyMenuTos(menuRepository.getWithItemsAndRestaurantsByDate(date));
     }

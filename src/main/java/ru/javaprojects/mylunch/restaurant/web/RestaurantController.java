@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.javaprojects.mylunch.common.util.ClockHolder;
-import ru.javaprojects.mylunch.restaurant.to.RestaurantDailyMenuTo;
+import ru.javaprojects.mylunch.restaurant.to.RestaurantMenuTo;
 import ru.javaprojects.mylunch.restaurant.to.RestaurantTo;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class RestaurantController extends AbstractRestaurantController {
     }
 
     @GetMapping("/menus")
-    public List<RestaurantDailyMenuTo> getWithMenuOnToday() {
+    public List<RestaurantMenuTo> getWithMenuOnToday() {
         return super.getWithMenusOnDate(ClockHolder.getDate());
     }
 }
