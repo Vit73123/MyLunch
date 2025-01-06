@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
                 title = "REST API documentation",
                 version = "1.0",
                 description = """
-                        Приложение <a href='https://jino/mylunch'>My Lunch</a>
+                        Приложение <a href='http://localhost:8080/api/restaurants/menus'>My Lunch</a>
                         <p><b>Тестовые учётные записи авторизации:</b><br>
                         - user@yandex.ru / password<br>
                         - admin@gmail.com / admin<br>
@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
                         <p><b>Тестовые данные:</b><br>
                         - resources/data.sql
                         """,
-                contact = @Contact(url = "https://jino/mylunch/#contacts", name = "Vladimit Rodionov", email = "rodionov.java@mail.ru")
+                contact = @Contact(name = "Vladimir Rodionov", email = "rodionov.java@mail.ru")
         ),
         security = @SecurityRequirement(name = "basicAuth")
 )
