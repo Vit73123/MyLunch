@@ -1,5 +1,6 @@
 package ru.javaprojects.mylunch.vote.web;
 
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,6 +12,7 @@ import ru.javaprojects.mylunch.app.config.AppPropertiesConfig;
 import ru.javaprojects.mylunch.common.util.ClockHolder;
 import ru.javaprojects.mylunch.menu.repository.MenuRepository;
 import ru.javaprojects.mylunch.vote.model.Vote;
+import ru.javaprojects.mylunch.vote.repository.VoteRepository;
 import ru.javaprojects.mylunch.vote.to.VoteTo;
 
 import java.time.LocalDate;
@@ -18,11 +20,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkTimeLimit;
+import static ru.javaprojects.mylunch.vote.VotesUtil.createTo;
+import static ru.javaprojects.mylunch.vote.VotesUtil.createTos;
 
 @RestController
 @RequestMapping(value = VoteController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-public class VoteController extends AbstractVoteController {
+public class VoteController {
+    protected final Logger log = getLogger(getClass());
 
     public static final String REST_URL = "/api/profile/votes";
 
@@ -30,16 +36,21 @@ public class VoteController extends AbstractVoteController {
     private AppPropertiesConfig app;
 
     @Autowired
+    protected VoteRepository voteRepository;
+
+    @Autowired
     MenuRepository menuRepository;
 
     @GetMapping("/on-today")
     VoteTo get(@AuthenticationPrincipal AuthUser authUser) {
-        return super.getByUserOnDate(ClockHolder.getDate(), authUser.id());
+        log.info("get for user id={} on today", authUser.id());
+        return createTo(voteRepository.getByDateAndUser(ClockHolder.getDate(), authUser.id()));
     }
 
     @GetMapping
     List<VoteTo> getAll(@AuthenticationPrincipal AuthUser authUser) {
-        return super.getByUser(authUser.id());
+        log.info("get for user id={}", authUser.id());
+        return createTos(voteRepository.getByUser(authUser.id()));
     }
 
     @PostMapping
