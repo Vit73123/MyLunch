@@ -38,10 +38,6 @@ public class DishTestData {
         return new Dish(null, "Созданный обед", 100, 0);
     }
 
-    public static DishTo getNewTo() {
-        return new DishTo(null, "Созданный обед", 100);
-    }
-
     public static Dish getUpdated() {
         Dish updated = new Dish(notUsed);
         updated.setDescription("Изменённый обед");

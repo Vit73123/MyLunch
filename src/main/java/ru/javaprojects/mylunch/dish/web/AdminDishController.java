@@ -9,9 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import ru.javaprojects.mylunch.dish.to.DishTo;
 import ru.javaprojects.mylunch.dish.model.Dish;
 import ru.javaprojects.mylunch.dish.repository.DishRepository;
+import ru.javaprojects.mylunch.dish.to.DishTo;
 import ru.javaprojects.mylunch.menu.repository.ItemRepository;
 import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
 
@@ -55,14 +55,14 @@ public class AdminDishController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<Dish> createWithLocation(@Valid @RequestBody DishTo dishTo, @PathVariable int restaurantId) {
+    public ResponseEntity<DishTo> create(@Valid @RequestBody DishTo dishTo, @PathVariable int restaurantId) {
         log.info("create {} of restaurant id={}", dishTo, restaurantId);
         checkNew(dishTo);
         restaurantRepository.checkExists(restaurantId);
-        Dish created = dishRepository.prepareAndSave(createNewFromTo(dishTo), restaurantId);
+        DishTo created = createTo(dishRepository.prepareAndSave(createNewFromTo(dishTo, restaurantId), restaurantId));
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(REST_URL)
-                .buildAndExpand(restaurantId)
+                .path(REST_URL + "/{id}")
+                .buildAndExpand(restaurantId, created.id())
                 .toUri();
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
@@ -73,8 +73,8 @@ public class AdminDishController {
     public void update(@Valid @RequestBody DishTo dishTo, @PathVariable int id, @PathVariable int restaurantId) {
         log.info("update {} with id={} of restaurant id={}", dishTo, id, restaurantId);
         assureIdConsistent(dishTo, id);
-        Dish dish = dishRepository.getExistedByRestaurant(id, restaurantId);
         itemRepository.checkDishNotExists(id);
+        Dish dish = dishRepository.getExistedByRestaurant(id, restaurantId);
         dishRepository.prepareAndSave(updateFromTo(dish, dishTo), restaurantId);
     }
 

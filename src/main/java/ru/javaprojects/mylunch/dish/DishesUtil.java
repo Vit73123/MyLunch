@@ -10,8 +10,8 @@ import java.util.List;
 @UtilityClass
 public class DishesUtil {
 
-    public static Dish createNewFromTo(DishTo dishTo) {
-        return new Dish(null, dishTo.getDescription(), dishTo.getPrice(), 0);
+    public static Dish createNewFromTo(DishTo dishTo, int restaurantId) {
+        return new Dish(null, dishTo.getDescription(), dishTo.getPrice(), restaurantId);
     }
 
     public static Dish updateFromTo(Dish dish, DishTo dishTo) {

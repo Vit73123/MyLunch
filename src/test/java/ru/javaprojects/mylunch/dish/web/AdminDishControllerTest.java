@@ -138,25 +138,25 @@ public class AdminDishControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    void createWithLocation() throws Exception {
+    void create() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
                 .buildAndExpand(RESTAURANT3_ID)
                 .toUri();
 
-        DishTo newTo = getNewTo();
-        Dish newDish = DishesUtil.createNewFromTo(newTo);
+        DishTo newTo = new DishTo(null, "Созданный обед", 100);
+        Dish newDish = DishesUtil.createNewFromTo(newTo, RESTAURANT3_ID);
         ResultActions action = perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        Dish created = DISH_MATCHER.readFromJson(action);
+        DishTo created = DISH_TO_MATCHER.readFromJson(action);
         int newId = created.id();
         newDish.setId(newId);
-        newDish.setRestaurantId(created.getRestaurantId());
-        DISH_MATCHER.assertMatch(created, newDish);
+        newDish.setRestaurantId(RESTAURANT3_ID);
+        DISH_TO_MATCHER.assertMatch(created, createTo(newDish));
         DISH_MATCHER.assertMatch(repository.getExistedByRestaurant(newId, RESTAURANT3_ID), newDish);
     }
 
@@ -168,7 +168,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RestaurantTestData.NOT_FOUND)
                 .toUri();
 
-        DishTo newTo = getNewTo();
+        DishTo newTo = new DishTo(null, "Созданный обед", 100);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newTo)))
@@ -215,7 +215,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        DISH_MATCHER.assertMatch(repository.getExistedByRestaurant(NOT_USED, RESTAURANT1_ID), getUpdated());
+        DISH_MATCHER.assertMatch(repository.getExistedByRestaurant(updatedTo.id(), RESTAURANT1_ID), getUpdated());
     }
 
     @Test
@@ -249,7 +249,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(notFoundTo)))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -266,7 +266,7 @@ public class AdminDishControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(notFoundTo)))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
