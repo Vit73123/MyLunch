@@ -48,9 +48,9 @@ class MenuRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void save() {
-        Menu created = repository.save(MenuTestData.getNewOnToday());
+        Menu created = repository.save(MenuTestData.getNew());
         int newId = created.id();
-        Menu newItem = MenuTestData.getNewOnToday();
+        Menu newItem = MenuTestData.getNew();
         newItem.setId(newId);
         MENU_MATCHER.assertMatch(created, newItem);
         MENU_MATCHER.assertMatch(repository.getExisted(newId, RESTAURANT3_ID), newItem);

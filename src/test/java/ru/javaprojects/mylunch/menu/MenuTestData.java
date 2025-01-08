@@ -7,7 +7,6 @@ import ru.javaprojects.mylunch.menu.model.Item;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.menu.to.ItemTo;
 import ru.javaprojects.mylunch.menu.to.MenuItemsTo;
-import ru.javaprojects.mylunch.menu.to.MenuTo;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -141,16 +140,8 @@ public class MenuTestData {
     public static final List<Menu> todayMenus = List.of(menu8, menu7);              // TODAY SORTED BY RESTAURANTS NAMES
     public static final List<Item> todayMenu = List.of(item11, item12, item10);     // TODAY RESTAURANT_2
 
-    public static Menu getNewOnToday() {
+    public static Menu getNew() {
         return new Menu(null, TODAY, RESTAURANT3_ID);
-    }
-
-    public static MenuTo getNewToOnToday() {
-        return new MenuTo(null, null);
-    }
-
-    public static MenuTo getNewToOnDate() {
-        return new MenuTo(null, NEW_DAY);
     }
 
     public static Item getNewItem() {
