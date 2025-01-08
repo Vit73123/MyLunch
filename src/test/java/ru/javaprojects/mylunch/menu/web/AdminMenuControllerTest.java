@@ -286,8 +286,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT1_ID)
                 .toUri();
 
-        perform(MockMvcRequestBuilders.delete(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+        perform(MockMvcRequestBuilders.delete(uri))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
