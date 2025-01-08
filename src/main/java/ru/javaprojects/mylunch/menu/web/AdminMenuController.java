@@ -16,8 +16,8 @@ import ru.javaprojects.mylunch.menu.ItemsUtil;
 import ru.javaprojects.mylunch.menu.model.Item;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.menu.repository.ItemRepository;
+import ru.javaprojects.mylunch.menu.to.CreateItemTo;
 import ru.javaprojects.mylunch.menu.to.ItemTo;
-import ru.javaprojects.mylunch.menu.to.MenuItemTo;
 import ru.javaprojects.mylunch.menu.to.MenuItemsTo;
 import ru.javaprojects.mylunch.menu.to.MenuTo;
 import ru.javaprojects.mylunch.restaurant.repository.RestaurantRepository;
@@ -72,7 +72,7 @@ public class AdminMenuController extends AbstractMenuController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    public ResponseEntity<MenuItemsTo> createWithLocation(@Valid @RequestBody MenuTo menuTo, @PathVariable int restaurantId) {
+    public ResponseEntity<MenuItemsTo> create(@Valid @RequestBody MenuTo menuTo, @PathVariable int restaurantId) {
         log.info("create {} for restaurant id={}", menuTo, restaurantId);
         checkNew(menuTo);
         restaurantRepository.checkExists(restaurantId);
@@ -93,7 +93,7 @@ public class AdminMenuController extends AbstractMenuController {
 
     @GetMapping("/{menuId}/items")
     @Transactional(readOnly = true)
-    public List<MenuItemTo> getItems(@PathVariable int menuId, @PathVariable int restaurantId) {
+    public List<ItemTo> getItems(@PathVariable int menuId, @PathVariable int restaurantId) {
         log.info("get items for menu id={} restaurant id={}", menuId, restaurantId);
         menuRepository.checkExistsByRestaurant(menuId, restaurantId);
         return ItemsUtil.createMenuItemTos(itemRepository.getByMenu(menuId));
@@ -101,9 +101,9 @@ public class AdminMenuController extends AbstractMenuController {
 
     @PostMapping(value = "/{menuId}/items")
     @Transactional
-    public ResponseEntity<MenuItemTo> addItem(@Valid @RequestBody ItemTo itemTo,
-                                        @PathVariable int menuId,
-                                        @PathVariable int restaurantId) {
+    public ResponseEntity<ItemTo> addItem(@Valid @RequestBody CreateItemTo itemTo,
+                                          @PathVariable int menuId,
+                                          @PathVariable int restaurantId) {
         log.info("add {} for menu id={} restaurant id={}", itemTo, menuId, restaurantId);
         menuRepository.checkExistsByRestaurant(menuId, restaurantId);
         Dish dish = dishRepository.getExistedByRestaurant(itemTo.getDishId(), restaurantId);

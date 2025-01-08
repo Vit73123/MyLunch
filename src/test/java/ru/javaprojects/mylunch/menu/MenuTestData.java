@@ -5,7 +5,7 @@ import ru.javaprojects.mylunch.common.util.ClockHolder;
 import ru.javaprojects.mylunch.dish.model.Dish;
 import ru.javaprojects.mylunch.menu.model.Item;
 import ru.javaprojects.mylunch.menu.model.Menu;
-import ru.javaprojects.mylunch.menu.to.MenuItemTo;
+import ru.javaprojects.mylunch.menu.to.ItemTo;
 import ru.javaprojects.mylunch.menu.to.MenuItemsTo;
 import ru.javaprojects.mylunch.menu.to.MenuTo;
 
@@ -23,7 +23,7 @@ public class MenuTestData {
     public static final MatcherFactory.Matcher<Menu> MENU_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Menu.class, "restaurant", "items");
     public static final MatcherFactory.Matcher<MenuItemsTo> MENU_ITEMS_TO_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(MenuItemsTo.class);
     public static final MatcherFactory.Matcher<Item> ITEM_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Item.class, "menu", "dish");
-    public static final MatcherFactory.Matcher<MenuItemTo> MENU_ITEM_TO_MATCHER = MatcherFactory.usingEqualsComparator(MenuItemTo.class);
+    public static final MatcherFactory.Matcher<ItemTo> MENU_ITEM_TO_MATCHER = MatcherFactory.usingEqualsComparator(ItemTo.class);
 
     public static final LocalDate DAY_1 = LocalDate.of(2024, 12, 1);
     public static final LocalDate DAY_2 = LocalDate.of(2024, 12, 2);

@@ -15,8 +15,8 @@ import ru.javaprojects.mylunch.menu.model.Item;
 import ru.javaprojects.mylunch.menu.model.Menu;
 import ru.javaprojects.mylunch.menu.repository.ItemRepository;
 import ru.javaprojects.mylunch.menu.repository.MenuRepository;
+import ru.javaprojects.mylunch.menu.to.CreateItemTo;
 import ru.javaprojects.mylunch.menu.to.ItemTo;
-import ru.javaprojects.mylunch.menu.to.MenuItemTo;
 import ru.javaprojects.mylunch.menu.to.MenuItemsTo;
 import ru.javaprojects.mylunch.menu.to.MenuTo;
 import ru.javaprojects.mylunch.restaurant.RestaurantTestData;
@@ -198,7 +198,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    void createWithLocationOnDate() throws Exception {
+    void createOnDate() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
                 .buildAndExpand(RESTAURANT3_ID)
@@ -222,7 +222,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    void createWithLocationOnToday() throws Exception {
+    void createOnToday() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
                 .buildAndExpand(RESTAURANT3_ID)
@@ -418,15 +418,16 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT2_ID, MENU8_ID)
                 .toUri();
 
-        ItemTo newTo = new ItemTo(null, DISH3_ID);
+        CreateItemTo newTo = new CreateItemTo(null, DISH3_ID);
         Item newItem = ItemsUtil.createNewFromTo(newTo);
         ResultActions action = perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newTo)))
                 .andDo(print())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
-        MenuItemTo addedTo = MENU_ITEM_TO_MATCHER.readFromJson(action);
+        ItemTo addedTo = MENU_ITEM_TO_MATCHER.readFromJson(action);
         int newId = addedTo.id();
         newItem.setId(newId);
         newItem.setMenuId(MENU8_ID);
@@ -443,7 +444,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RestaurantTestData.NOT_FOUND, MENU8_ID)
                 .toUri();
 
-        ItemTo newTo = new ItemTo(null, DISH3_ID);
+        CreateItemTo newTo = new CreateItemTo(null, DISH3_ID);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newTo)))
@@ -459,7 +460,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT1_ID, MENU8_ID)
                 .toUri();
 
-        ItemTo newTo = new ItemTo(null, DISH3_ID);
+        CreateItemTo newTo = new CreateItemTo(null, DISH3_ID);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newTo)))
@@ -475,7 +476,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT2_ID, MENU8_ID)
                 .toUri();
 
-        ItemTo newTo = new ItemTo(null, DishTestData.NOT_FOUND);
+        CreateItemTo newTo = new CreateItemTo(null, DishTestData.NOT_FOUND);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newTo)))
@@ -491,7 +492,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT2_ID, MENU8_ID)
                 .toUri();
 
-        ItemTo newTo = new ItemTo(null, DISH5_ID);
+        CreateItemTo newTo = new CreateItemTo(null, DISH5_ID);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newTo)))
@@ -507,7 +508,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT2_ID, MenuTestData.NOT_FOUND)
                 .toUri();
 
-        ItemTo newTo = new ItemTo(null, DISH5_ID);
+        CreateItemTo newTo = new CreateItemTo(null, DISH5_ID);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newTo)))
@@ -523,7 +524,7 @@ public class AdminMenuControllerTest extends AbstractControllerTest {
                 .buildAndExpand(RESTAURANT2_ID, MENU7_ID)
                 .toUri();
 
-        ItemTo newTo = new ItemTo(null, DISH3_ID);
+        CreateItemTo newTo = new CreateItemTo(null, DISH3_ID);
         perform(MockMvcRequestBuilders.post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newTo)))
