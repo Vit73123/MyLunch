@@ -2,6 +2,9 @@ package ru.javaprojects.mylunch.user.web;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +24,8 @@ import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkNew;
 
 @RestController
 @RequestMapping(value = ProfileController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+@CacheConfig(cacheNames = "users")
 @Slf4j
-// TODO: cache only most requested data!
 public class ProfileController extends AbstractUserController {
     static final String REST_URL = "/api/profile";
 
@@ -34,6 +37,7 @@ public class ProfileController extends AbstractUserController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(allEntries = true)
     public void delete(@AuthenticationPrincipal AuthUser authUser) {
         super.delete(authUser.id());
     }
@@ -50,11 +54,12 @@ public class ProfileController extends AbstractUserController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CachePut(key = "#userTo.email")
     @Transactional
-    public void update(@Valid @RequestBody UserTo userTo, @AuthenticationPrincipal AuthUser authUser) {
+    public User update(@Valid @RequestBody UserTo userTo, @AuthenticationPrincipal AuthUser authUser) {
         log.info("update {} with id={}", userTo, authUser.id());
         assureIdConsistent(userTo, authUser.id());
         User user = authUser.getUser();
-        repository.prepareAndSave(UsersUtil.updateFromTo(user, userTo));
+        return repository.prepareAndSave(UsersUtil.updateFromTo(user, userTo));
     }
 }

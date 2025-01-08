@@ -1,6 +1,10 @@
 package ru.javaprojects.mylunch.user.web;
 
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,7 +22,7 @@ import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkNew;
 
 @RestController
 @RequestMapping(value = AdminUserController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-// TODO: cache only most requested, seldom changed data!
+@CacheConfig(cacheNames = "users")
 public class AdminUserController extends AbstractUserController {
 
     static final String REST_URL = "/api/admin/users";
@@ -32,6 +36,7 @@ public class AdminUserController extends AbstractUserController {
     @Override
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(allEntries = true)
     public void delete(@PathVariable int id) {
         super.delete(id);
     }
@@ -43,6 +48,7 @@ public class AdminUserController extends AbstractUserController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @CachePut(key = "#user.email")
     public ResponseEntity<User> createWithLocation(@Valid @RequestBody User user) {
         log.info("create {}", user);
         checkNew(user);
@@ -55,13 +61,15 @@ public class AdminUserController extends AbstractUserController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@Valid @RequestBody User user, @PathVariable int id) {
+    @CachePut(key = "#user.email")
+    public User update(@Valid @RequestBody User user, @PathVariable int id) {
         log.info("update {} with id={}", user, id);
         assureIdConsistent(user, id);
-        repository.prepareAndSave(user);
+        return repository.prepareAndSave(user);
     }
 
     @GetMapping("/by-email")
+    @Cacheable
     public User getByEmail(@RequestParam String email) {
         log.info("getByEmail {}", email);
         return repository.getExistedByEmail(email);
@@ -69,6 +77,7 @@ public class AdminUserController extends AbstractUserController {
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(allEntries = true)
     @Transactional
     public void enable(@PathVariable int id, @RequestParam boolean enabled) {
         log.info(enabled ? "enable {}" : "disable {}", id);
