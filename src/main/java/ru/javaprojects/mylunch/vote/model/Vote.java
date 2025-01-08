@@ -57,11 +57,11 @@ public class Vote extends BaseEntity {
     @Range(min = 1)
     private int restaurantId;
 
-    public Vote(Integer id, LocalDate votedDate, Integer userId) {
-        this(null, votedDate, null, 0, userId);
+    public Vote(Integer id, int restaurantId, int userId) {
+        this(id, null, null, restaurantId, userId);
     }
 
-    public Vote(Integer id, LocalDate votedDate, LocalTime votedTime, int restaurantId, Integer userId) {
+    public Vote(Integer id, LocalDate votedDate, LocalTime votedTime, int restaurantId, int userId) {
         super(id);
         this.votedDate = votedDate;
         this.votedTime = votedTime;

@@ -41,9 +41,9 @@ class VoteRepositoryTest extends AbstractRepositoryTest {
 
     @Test
     void save() {
-        Vote created = repository.save(getNew());
+        Vote created = repository.save(getNewByGuest());
         int newId = created.id();
-        Vote newVote = getNew();
+        Vote newVote = getNewByGuest();
         newVote.setId(newId);
         VOTE_MATCHER.assertMatch(created, newVote);
         VOTE_MATCHER.assertMatch(repository.getExisted(newId), newVote);
@@ -52,7 +52,7 @@ class VoteRepositoryTest extends AbstractRepositoryTest {
     @Test
     void duplicateDateUserSave() {
         assertThrows(DataIntegrityViolationException.class, () ->
-                repository.save(getNewByUser(USER_ID)));
+                repository.save(getNewByUser()));
     }
 
     @Test

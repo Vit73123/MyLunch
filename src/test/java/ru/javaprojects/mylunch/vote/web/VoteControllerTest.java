@@ -2,7 +2,7 @@ package ru.javaprojects.mylunch.vote.web;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.ResultActions;
@@ -13,6 +13,8 @@ import ru.javaprojects.mylunch.app.config.AppPropertiesConfig;
 import ru.javaprojects.mylunch.common.util.ClockHolder;
 import ru.javaprojects.mylunch.vote.model.Vote;
 import ru.javaprojects.mylunch.vote.repository.VoteRepository;
+import ru.javaprojects.mylunch.vote.to.VoteTo;
+import ru.javaprojects.mylunch.vote.to.CreateVoteTo;
 
 import java.net.URI;
 import java.time.Clock;
@@ -22,13 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.NOT_TODAY_RESTAURANT;
+import static ru.javaprojects.mylunch.common.util.JsonUtil.writeValue;
+import static ru.javaprojects.mylunch.restaurant.RestaurantTestData.RESTAURANT1_ID;
 import static ru.javaprojects.mylunch.user.UserTestData.*;
-import static ru.javaprojects.mylunch.vote.VoteTestData.getNew;
 import static ru.javaprojects.mylunch.vote.VoteTestData.getUpdated;
 import static ru.javaprojects.mylunch.vote.VoteTestData.*;
-import static ru.javaprojects.mylunch.vote.VotesUtil.createTo;
-import static ru.javaprojects.mylunch.vote.VotesUtil.createTos;
+import static ru.javaprojects.mylunch.vote.VotesUtil.*;
 import static ru.javaprojects.mylunch.vote.web.VoteController.REST_URL;
 
 public class VoteControllerTest extends AbstractControllerTest {
@@ -41,6 +42,9 @@ public class VoteControllerTest extends AbstractControllerTest {
     @Autowired
     AppPropertiesConfig app;
 
+    @Autowired
+    ApplicationContext ap;
+
     @Test
     @WithUserDetails(value = USER_MAIL)
     void get() throws Exception {
@@ -48,7 +52,7 @@ public class VoteControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(VOTE_TO_MATCHER.contentJson(createTo(vote5)));
+                .andExpect(VOTE_DATE_TO_MATCHER.contentJson(createDateTo(vote5)));
     }
 
     @Test
@@ -58,7 +62,7 @@ public class VoteControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(VOTE_TO_MATCHER.contentJson(createTos(userVotes)));
+                .andExpect(VOTE_DATE_TO_MATCHER.contentJson(createDateTos(userVotes)));
     }
 
     @Test
@@ -68,7 +72,7 @@ public class VoteControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(VOTE_TO_MATCHER.contentJson(createTos(noVotes)));
+                .andExpect(VOTE_DATE_TO_MATCHER.contentJson(createDateTos(noVotes)));
         assertTrue(repository.getByUser(GUEST_ID).isEmpty());
     }
 
@@ -78,23 +82,26 @@ public class VoteControllerTest extends AbstractControllerTest {
         Clock testClock = Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         Clock beforeTestClock = ClockHolder.setClock(testClock);
 
-        Vote newVote = getNew();
+        CreateVoteTo newTo = new CreateVoteTo(null, RESTAURANT1_ID);
+        Vote newVote = createNewFromTo(newTo, GUEST_ID);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
-                .queryParam("restaurantId", "{restaurantId}")
-                .buildAndExpand(newVote.getRestaurantId())
+                .buildAndExpand(newTo.getRestaurantId())
                 .toUri();
 
-        ResultActions action = perform(MockMvcRequestBuilders.post(uri))
+        ResultActions action = perform(MockMvcRequestBuilders.post(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-        Vote created = VOTE_MATCHER.readFromJson(action);
+
+        VoteTo created = VOTE_DATE_TO_MATCHER.readFromJson(action);
         int newId = created.id();
         newVote.setId(newId);
-        newVote.setVotedTime(created.getVotedTime());
-        VOTE_MATCHER.assertMatch(created, newVote);
+        newVote.setVotedDate(created.getVotedDate());
+        VOTE_DATE_TO_MATCHER.assertMatch(created, createDateTo(newVote));
         VOTE_MATCHER.assertMatch(repository.getExisted(newId), newVote);
 
         ClockHolder.setClock(beforeTestClock);
@@ -106,24 +113,26 @@ public class VoteControllerTest extends AbstractControllerTest {
         Clock testClock = Clock.fixed(LATE.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         Clock beforeTestClock = ClockHolder.setClock(testClock);
 
-        Vote newVote = getNew();
-        newVote.setVotedTime(LATE_TIME);
+        CreateVoteTo newTo = new CreateVoteTo(null, RESTAURANT1_ID);
+        Vote newVote = createNewFromTo(newTo, GUEST_ID);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
-                .queryParam("restaurantId", "{restaurantId}")
-                .buildAndExpand(newVote.getRestaurantId())
+                .buildAndExpand(newTo.getRestaurantId())
                 .toUri();
 
-        ResultActions action = perform(MockMvcRequestBuilders.post(uri))
+        ResultActions action = perform(MockMvcRequestBuilders.post(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-        Vote created = VOTE_MATCHER.readFromJson(action);
+
+        VoteTo created = VOTE_DATE_TO_MATCHER.readFromJson(action);
         int newId = created.id();
         newVote.setId(newId);
-        newVote.setVotedTime(created.getVotedTime());
-        VOTE_MATCHER.assertMatch(created, newVote);
+        newVote.setVotedDate(created.getVotedDate());
+        VOTE_DATE_TO_MATCHER.assertMatch(created, createDateTo(newVote));
         VOTE_MATCHER.assertMatch(repository.getExisted(newId), newVote);
 
         ClockHolder.setClock(beforeTestClock);
@@ -135,16 +144,16 @@ public class VoteControllerTest extends AbstractControllerTest {
         Clock testClock = Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         Clock beforeTestClock = ClockHolder.setClock(testClock);
 
-        Vote newVote = getNew();
-        newVote.setRestaurantId(NOT_TODAY_RESTAURANT);
+        CreateVoteTo newTo = new CreateVoteTo(null, RESTAURANT1_ID);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
-                .queryParam("restaurantId", "{restaurantId}")
-                .buildAndExpand(newVote.getRestaurantId())
+                .buildAndExpand(newTo.getRestaurantId())
                 .toUri();
 
-        perform(MockMvcRequestBuilders.post(uri))
+        perform(MockMvcRequestBuilders.post(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
@@ -157,19 +166,20 @@ public class VoteControllerTest extends AbstractControllerTest {
         Clock testClock = Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         Clock beforeTestClock = ClockHolder.setClock(testClock);
 
-        Vote updated = getUpdated();
+        CreateVoteTo updatedTo = new CreateVoteTo(VOTE6_ID, RESTAURANT1_ID);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
-                .queryParam("restaurantId", "{restaurantId}")
-                .buildAndExpand(updated.getRestaurantId())
+                .buildAndExpand(updatedTo.getRestaurantId())
                 .toUri();
 
-        perform(MockMvcRequestBuilders.put(uri))
+        perform(MockMvcRequestBuilders.put(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(updatedTo)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-        VOTE_MATCHER.assertMatch(repository.getExisted(updated.id()), updated);
+        VOTE_MATCHER.assertMatch(repository.getExisted(updatedTo.id()), getUpdated());
 
         ClockHolder.setClock(beforeTestClock);
     }
@@ -180,16 +190,16 @@ public class VoteControllerTest extends AbstractControllerTest {
         Clock testClock = Clock.fixed(LATE.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
         Clock beforeTestClock = ClockHolder.setClock(testClock);
 
-        Vote updated = getUpdated();
-        updated.setVotedTime(LATE_TIME);
+        CreateVoteTo updatedTo = new CreateVoteTo(VOTE6_ID, RESTAURANT1_ID);
 
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL)
-                .queryParam("restaurantId", "{restaurantId}")
-                .buildAndExpand(updated.getRestaurantId())
+                .buildAndExpand(updatedTo.getRestaurantId())
                 .toUri();
 
-        perform(MockMvcRequestBuilders.put(uri))
+        perform(MockMvcRequestBuilders.put(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(updatedTo)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity());
 

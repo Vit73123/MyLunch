@@ -6,14 +6,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.javaprojects.mylunch.app.AuthUser;
 import ru.javaprojects.mylunch.app.config.AppPropertiesConfig;
 import ru.javaprojects.mylunch.common.util.ClockHolder;
-import ru.javaprojects.mylunch.menu.repository.MenuRepository;
+import ru.javaprojects.mylunch.vote.VotesUtil;
 import ru.javaprojects.mylunch.vote.model.Vote;
 import ru.javaprojects.mylunch.vote.repository.VoteRepository;
 import ru.javaprojects.mylunch.vote.to.VoteTo;
+import ru.javaprojects.mylunch.vote.to.CreateVoteTo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,9 +23,10 @@ import java.time.LocalTime;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkNew;
 import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkTimeLimit;
-import static ru.javaprojects.mylunch.vote.VotesUtil.createTo;
-import static ru.javaprojects.mylunch.vote.VotesUtil.createTos;
+import static ru.javaprojects.mylunch.vote.VotesUtil.createDateTo;
+import static ru.javaprojects.mylunch.vote.VotesUtil.createDateTos;
 
 @RestController
 @RequestMapping(value = VoteController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,45 +39,44 @@ public class VoteController {
     private AppPropertiesConfig app;
 
     @Autowired
-    protected VoteRepository voteRepository;
-
-    @Autowired
-    MenuRepository menuRepository;
+    private VoteRepository voteRepository;
 
     @GetMapping("/on-today")
-    VoteTo get(@AuthenticationPrincipal AuthUser authUser) {
+    public VoteTo get(@AuthenticationPrincipal AuthUser authUser) {
         log.info("get for user id={} on today", authUser.id());
-        return createTo(voteRepository.getByDateAndUser(ClockHolder.getDate(), authUser.id()));
+        return createDateTo(voteRepository.getByDateAndUser(ClockHolder.getDate(), authUser.id()));
     }
 
     @GetMapping
-    List<VoteTo> getAll(@AuthenticationPrincipal AuthUser authUser) {
+    public List<VoteTo> getAll(@AuthenticationPrincipal AuthUser authUser) {
         log.info("get for user id={}", authUser.id());
-        return createTos(voteRepository.getByUser(authUser.id()));
+        return createDateTos(voteRepository.getByUser(authUser.id()));
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @Transactional
-    public Vote create(@RequestParam int restaurantId, @AuthenticationPrincipal AuthUser authUser) {
-        log.info("create on today for restaurant id={} user id={}", authUser, restaurantId);
+    public VoteTo create(@Validated @RequestBody CreateVoteTo voteTo, @AuthenticationPrincipal AuthUser authUser) {
+        log.info("create on today for restaurant id={} user id={}", voteTo.getRestaurantId(), authUser.id());
         LocalDateTime now = ClockHolder.getDateTime();
-        Vote vote = new Vote(null, now.toLocalDate(), now.toLocalTime(), restaurantId, authUser.id());
-        return voteRepository.prepareAndSave(vote);
+        checkNew(voteTo);
+        Vote vote = VotesUtil.createNewFromTo(voteTo, authUser.id());
+        vote.setVotedDate(now.toLocalDate());
+        vote.setVotedTime(now.toLocalTime());
+        return createDateTo(voteRepository.prepareAndSave(vote));
     }
 
-    @PutMapping
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
-    public void update(@RequestParam int restaurantId, @AuthenticationPrincipal AuthUser authUser) {
-        log.info("update on today for restaurant id={} user id={}", authUser, restaurantId);
+    public void update(@Validated @RequestBody CreateVoteTo voteTo, @AuthenticationPrincipal AuthUser authUser) {
+        log.info("update on today for restaurant id={} user id={}", voteTo.getRestaurantId(), authUser.id());
         LocalDateTime now = ClockHolder.getDateTime();
         LocalTime time = now.toLocalTime();
         checkTimeLimit(time, app.getVotedTimeLimit());
         LocalDate today = now.toLocalDate();
         Vote vote = voteRepository.getByDateAndUser(today, authUser.id());
-        vote.setVotedTime(time);
-        vote.setRestaurantId(restaurantId);
+        VotesUtil.updateFromTo(vote, voteTo);
         voteRepository.prepareAndSave(vote);
     }
 }

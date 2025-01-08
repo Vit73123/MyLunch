@@ -4,6 +4,7 @@ import ru.javaprojects.mylunch.MatcherFactory;
 import ru.javaprojects.mylunch.common.util.ClockHolder;
 import ru.javaprojects.mylunch.vote.model.Vote;
 import ru.javaprojects.mylunch.vote.to.VoteTo;
+import ru.javaprojects.mylunch.vote.to.CreateVoteTo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +17,8 @@ import static ru.javaprojects.mylunch.user.UserTestData.*;
 
 public class VoteTestData {
     public static final MatcherFactory.Matcher<Vote> VOTE_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Vote.class, "restaurant", "user", "votedTime");
-    public static final MatcherFactory.Matcher<VoteTo> VOTE_TO_MATCHER = MatcherFactory.usingEqualsComparator(VoteTo.class);
+    public static final MatcherFactory.Matcher<CreateVoteTo> VOTE_TO_MATCHER = MatcherFactory.usingEqualsComparator(CreateVoteTo.class);
+    public static final MatcherFactory.Matcher<VoteTo> VOTE_DATE_TO_MATCHER = MatcherFactory.usingEqualsComparator(VoteTo.class);
 
     public static final LocalDate DAY_1 = LocalDate.of(2024, 12, 1);
     public static final LocalDate DAY_2 = LocalDate.of(2024, 12, 2);
@@ -43,12 +45,12 @@ public class VoteTestData {
     public static final List<Vote> noVotes = new ArrayList<>();
 
 
-    public static Vote getNew() {
+    public static Vote getNewByGuest() {
         return new Vote(null, TODAY, CURRENT_TIME, RESTAURANT1_ID, GUEST_ID);
     }
 
-    public static Vote getNewByUser(int userId) {
-        return new Vote(null, TODAY, CURRENT_TIME, RESTAURANT1_ID, userId);
+    public static Vote getNewByUser() {
+        return new Vote(null, TODAY, CURRENT_TIME, RESTAURANT1_ID, USER_ID);
     }
 
     public static Vote getUpdated() {
