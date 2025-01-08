@@ -2,6 +2,9 @@ package ru.javaprojects.mylunch.menu.web;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +34,7 @@ import static ru.javaprojects.mylunch.menu.MenusUtil.*;
 
 @RestController
 @RequestMapping(value = AdminMenuController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+@CacheConfig(cacheNames = "menus")
 public class AdminMenuController extends AbstractMenuController {
     static final String REST_URL = "/api/admin/restaurants/{restaurantId}/menus";
 
@@ -51,12 +55,14 @@ public class AdminMenuController extends AbstractMenuController {
     }
 
     @GetMapping("/on-today")
+    @Cacheable(key = "#restaurantId")
     public MenuItemsTo getOnToday(@PathVariable int restaurantId) {
         return super.getOnDate(ClockHolder.getDate(), restaurantId);
     }
 
     @Override
     @GetMapping("/on-date")
+    @Cacheable(key = "#restaurantId")
     public MenuItemsTo getOnDate(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                  @PathVariable int restaurantId) {
         return super.getOnDate(date, restaurantId);
@@ -86,6 +92,7 @@ public class AdminMenuController extends AbstractMenuController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(key = "#restaurantId")
     public void delete(@PathVariable int id, @PathVariable int restaurantId) {
         log.info("delete with id={} of restaurant id={}", id, restaurantId);
         menuRepository.deleteExisted(id, restaurantId);
@@ -99,8 +106,9 @@ public class AdminMenuController extends AbstractMenuController {
         return ItemsUtil.createMenuItemTos(itemRepository.getByMenu(menuId));
     }
 
-    @PostMapping(value = "/{menuId}/items")
+    @PostMapping(value = "/{menuId}/items", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
+    @CacheEvict(key = "#restaurantId")
     public ResponseEntity<ItemTo> addItem(@Valid @RequestBody CreateItemTo itemTo,
                                           @PathVariable int menuId,
                                           @PathVariable int restaurantId) {
@@ -119,6 +127,7 @@ public class AdminMenuController extends AbstractMenuController {
     @DeleteMapping(value = "/{menuId}/items/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
+    @CacheEvict(key = "#restaurantId")
     public void deleteItem(@PathVariable int itemId, @PathVariable int menuId, @PathVariable int restaurantId) {
         log.info("delete item id={} for menu id={} restaurant id={}", itemId, menuId, restaurantId);
         menuRepository.checkExistsByRestaurant(menuId, restaurantId);
