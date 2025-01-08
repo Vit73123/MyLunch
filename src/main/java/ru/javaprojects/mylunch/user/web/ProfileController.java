@@ -1,5 +1,6 @@
 package ru.javaprojects.mylunch.user.web;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
@@ -26,6 +27,7 @@ import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkNew;
 @RequestMapping(value = ProfileController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 @CacheConfig(cacheNames = "users")
 @Slf4j
+@Tag(name = "Profile API")
 public class ProfileController extends AbstractUserController {
     static final String REST_URL = "/api/profile";
 

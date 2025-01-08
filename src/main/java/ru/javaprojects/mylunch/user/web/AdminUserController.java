@@ -1,5 +1,6 @@
 package ru.javaprojects.mylunch.user.web;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -23,6 +24,7 @@ import static ru.javaprojects.mylunch.common.validation.ValidationUtil.checkNew;
 @RestController
 @RequestMapping(value = AdminUserController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 @CacheConfig(cacheNames = "users")
+@Tag(name = "Administrator API")
 public class AdminUserController extends AbstractUserController {
 
     static final String REST_URL = "/api/admin/users";

@@ -1,5 +1,7 @@
 package ru.javaprojects.mylunch.dish.web;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import static ru.javaprojects.mylunch.dish.DishesUtil.*;
 
 @RestController
 @RequestMapping(value = AdminDishController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Dish administrator API")
 public class AdminDishController {
     private final Logger log = getLogger(getClass());
 
@@ -40,6 +43,8 @@ public class AdminDishController {
     private ItemRepository itemRepository;
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get the dish by id",
+            description = "Dish must belong to the restaurant, dish and restaurant must exist.")
     public DishTo get(@PathVariable int id, @PathVariable int restaurantId) {
         log.info("get with id={} of restaurant id={}", id, restaurantId);
         return createTo(dishRepository.getExistedByRestaurant(id, restaurantId));
@@ -47,6 +52,8 @@ public class AdminDishController {
 
     @GetMapping
     @Transactional
+    @Operation(summary = "Get all dishes of the restaurant",
+            description = "Restaurant must exist.")
     public List<DishTo> getByRestaurant(@PathVariable int restaurantId) {
         log.info("getByRestaurant id={}", restaurantId);
         restaurantRepository.checkExists(restaurantId);
@@ -55,6 +62,8 @@ public class AdminDishController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
+    @Operation(summary = "Get the dish by id",
+            description = "Dish must belong to the restaurant and must not exist, restaurant must exist.")
     public ResponseEntity<DishTo> create(@Valid @RequestBody DishTo dishTo, @PathVariable int restaurantId) {
         log.info("create {} of restaurant id={}", dishTo, restaurantId);
         checkNew(dishTo);
@@ -70,6 +79,8 @@ public class AdminDishController {
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
+    @Operation(summary = "Update the dish by id",
+            description = "Dish must belong to the restaurant and must exist, restaurant must exist.")
     public void update(@Valid @RequestBody DishTo dishTo, @PathVariable int id, @PathVariable int restaurantId) {
         log.info("update {} with id={} of restaurant id={}", dishTo, id, restaurantId);
         assureIdConsistent(dishTo, id);
@@ -81,6 +92,8 @@ public class AdminDishController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
+    @Operation(summary = "Delete the dish by id",
+            description = "Dish must belong to the restaurant and must exist, restaurant must exist.")
     public void delete(@PathVariable int id, @PathVariable int restaurantId) {
         log.info("delete with id={} of restaurant id={}", id, restaurantId);
         itemRepository.checkDishNotExists(id);
