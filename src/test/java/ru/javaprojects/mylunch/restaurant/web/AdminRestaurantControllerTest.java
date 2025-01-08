@@ -135,7 +135,7 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
-    void createWithLocation() throws Exception {
+    void create() throws Exception {
         RestaurantTo newTo = new RestaurantTo(null, "Новый ресторан", "new_restaurant@yandex.ru");
         Restaurant newRestaurant = RestaurantsUtil.createNewFromTo(newTo);
 
