@@ -55,14 +55,12 @@ public class AdminMenuController extends AbstractMenuController {
     }
 
     @GetMapping("/on-today")
-    @Cacheable(key = "#restaurantId")
     public MenuItemsTo getOnToday(@PathVariable int restaurantId) {
         return super.getOnDate(ClockHolder.getDate(), restaurantId);
     }
 
     @Override
     @GetMapping("/on-date")
-    @Cacheable(key = "#restaurantId")
     public MenuItemsTo getOnDate(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                  @PathVariable int restaurantId) {
         return super.getOnDate(date, restaurantId);
@@ -78,6 +76,7 @@ public class AdminMenuController extends AbstractMenuController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
+    @CacheEvict(allEntries = true)
     public ResponseEntity<MenuItemsTo> create(@Valid @RequestBody MenuTo menuTo, @PathVariable int restaurantId) {
         log.info("create {} for restaurant id={}", menuTo, restaurantId);
         checkNew(menuTo);
@@ -92,7 +91,7 @@ public class AdminMenuController extends AbstractMenuController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @CacheEvict(key = "#restaurantId")
+    @CacheEvict(allEntries = true)
     public void delete(@PathVariable int id, @PathVariable int restaurantId) {
         log.info("delete with id={} of restaurant id={}", id, restaurantId);
         menuRepository.deleteExisted(id, restaurantId);
@@ -108,7 +107,7 @@ public class AdminMenuController extends AbstractMenuController {
 
     @PostMapping(value = "/{menuId}/items", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Transactional
-    @CacheEvict(key = "#restaurantId")
+    @CacheEvict(allEntries = true)
     public ResponseEntity<ItemTo> addItem(@Valid @RequestBody CreateItemTo itemTo,
                                           @PathVariable int menuId,
                                           @PathVariable int restaurantId) {
@@ -127,7 +126,7 @@ public class AdminMenuController extends AbstractMenuController {
     @DeleteMapping(value = "/{menuId}/items/{itemId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
-    @CacheEvict(key = "#restaurantId")
+    @CacheEvict(allEntries = true)
     public void deleteItem(@PathVariable int itemId, @PathVariable int menuId, @PathVariable int restaurantId) {
         log.info("delete item id={} for menu id={} restaurant id={}", itemId, menuId, restaurantId);
         menuRepository.checkExistsByRestaurant(menuId, restaurantId);

@@ -1,6 +1,9 @@
 package ru.javaprojects.mylunch.restaurant.web;
 
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -46,6 +49,7 @@ public class AdminRestaurantController extends AbstractRestaurantController {
     }
 
     @GetMapping("/on-today")
+    @Cacheable("restaurants")
     public List<RestaurantTo> getOnToday() {
         return super.getOnDate(ClockHolder.getDate());
     }
@@ -55,17 +59,19 @@ public class AdminRestaurantController extends AbstractRestaurantController {
         return super.getOnDate(date);
     }
 
-    @GetMapping("/menus/on-date")
-    public List<RestaurantMenuTo> getWithMenusOnToday(LocalDate date) {
-        return super.getWithMenusOnDate(date);
-    }
-
     @GetMapping("/menus/on-today")
+    @Cacheable("menus")
     public List<RestaurantMenuTo> getWithMenusOnToday() {
         return super.getWithMenusOnDate(ClockHolder.getDate());
     }
 
+    @GetMapping("/menus/on-date")
+    public List<RestaurantMenuTo> getWithMenusOnDate(LocalDate date) {
+        return super.getWithMenusOnDate(date);
+    }
+
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @CacheEvict(cacheNames = {"restaurants", "menus"})
     public ResponseEntity<RestaurantTo> create(@Valid @RequestBody RestaurantTo restaurantTo) {
         log.info("create {}", restaurantTo);
         checkNew(restaurantTo);
@@ -80,6 +86,7 @@ public class AdminRestaurantController extends AbstractRestaurantController {
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
+    @CacheEvict(cacheNames = {"restaurants", "menus"})
     public void update(@Valid @RequestBody RestaurantTo restaurantTo, @PathVariable int id) {
         log.info("update {} with id={}", restaurantTo, id);
         assureIdConsistent(restaurantTo, id);
@@ -89,6 +96,7 @@ public class AdminRestaurantController extends AbstractRestaurantController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(cacheNames = {"restaurants", "menus"})
     public void delete(@PathVariable int id) {
         log.info("delete with id={}", id);
         restaurantRepository.deleteExisted(id);

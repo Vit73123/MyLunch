@@ -77,6 +77,16 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN_MAIL)
+    void getOnToday() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL_SLASH + "on-today"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RESTAURANT_TO_MATCHER.contentJson(RestaurantsUtil.createTos(todayRestaurants)));
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
     void getOnDate() throws Exception {
         URI uri = UriComponentsBuilder
                 .fromUriString(REST_URL_SLASH + "on-date")
@@ -89,6 +99,17 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(RESTAURANT_TO_MATCHER.contentJson(RestaurantsUtil.createTos(day1Restaurants)));
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN_MAIL)
+    void getWithMenuOnToday() throws Exception {
+        perform(MockMvcRequestBuilders.get(REST_URL_SLASH + "menus/on-today"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RESTAURANT_MENU_TO_MATCHER.contentJson(
+                        RestaurantsUtil.createWithDailyMenuTos(MenuTestData.todayMenus)));
     }
 
     @Test
@@ -106,17 +127,6 @@ public class AdminRestaurantControllerTest extends AbstractControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(RESTAURANT_MENU_TO_MATCHER.contentJson(
                         RestaurantsUtil.createWithDailyMenuTos(MenuTestData.day1Menus)));
-    }
-
-    @Test
-    @WithUserDetails(value = ADMIN_MAIL)
-    void getWithMenuOnToday() throws Exception {
-        perform(MockMvcRequestBuilders.get(REST_URL_SLASH + "menus/on-today"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANT_MENU_TO_MATCHER.contentJson(
-                        RestaurantsUtil.createWithDailyMenuTos(MenuTestData.todayMenus)));
     }
 
     @Test
