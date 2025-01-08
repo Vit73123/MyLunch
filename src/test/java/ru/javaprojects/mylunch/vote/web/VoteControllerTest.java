@@ -42,9 +42,6 @@ public class VoteControllerTest extends AbstractControllerTest {
     @Autowired
     AppPropertiesConfig app;
 
-    @Autowired
-    ApplicationContext ap;
-
     @Test
     @WithUserDetails(value = USER_MAIL)
     void get() throws Exception {
