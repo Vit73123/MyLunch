@@ -22,7 +22,6 @@ import ru.javaprojects.mylunch.restaurant.model.Restaurant;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(name = "menu",
         uniqueConstraints = {
@@ -48,7 +47,6 @@ public class Menu extends BaseEntity implements HasId {
     @Range(min = 1)
     private int restaurantId;
 
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "menu_item",

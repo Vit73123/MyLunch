@@ -21,7 +21,6 @@ import ru.javaprojects.mylunch.vote.model.Vote;
 
 import java.util.List;
 
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 @Table(name = "restaurant",
         uniqueConstraints = {
@@ -32,7 +31,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Restaurant extends NamedEntity implements HasIdAndEmail {
 
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @Column(name = "email", nullable = false, unique = true)
     @Email
     @NotBlank
@@ -44,7 +42,6 @@ public class Restaurant extends NamedEntity implements HasIdAndEmail {
     @JsonManagedReference(value = "restaurant-dishes")
     private List<Dish> dishes;
 
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @OneToMany(mappedBy = "restaurant", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @OrderBy("issuedDate")
     @OnDelete(action = OnDeleteAction.CASCADE)
